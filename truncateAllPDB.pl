@@ -43,10 +43,17 @@ my @files = readdir DIR;
 foreach (my $i = 0; $i < @files; $i++){
 	
 	if ($files[$i] =~ /.xml/){
-		my $path = $resDir."\/".$files[$i];
-		my $pdbCode = getPdbCodeFromFatcatResultFile($path);
-		my @startEndResidues = getStartEndResiduesFromFatcatResultFile($path);	
-		#print $pdbCode, "\nStart: ", $startEndResidues[0], "\nEnd: ", $startEndResidues[1], "\n";
+		my $inPath = $resDir."\/".$files[$i];
+		
+		my $pdbCode = getPdbCodeFromFatcatResultFile($inPath);
+		my @startEndResidues = getStartEndResiduesFromFatcatResultFile($inPath);	
+		
+		print $pdbCode, "\nStart: ", $startEndResidues[0], "\nEnd: ", $startEndResidues[1], "\n";
+		
+		my $outFile = $outDir."\/".$pdbCode."_trunc.pdb";	
+		my $pdbPath = $pdbDir."\/pdb".$pdbCode.".ent";
+		
+		truncatePDBFile($pdbPath, $outFile, $startEndResidues[0], $startEndResidues[1]);
 	}	
 }
 
