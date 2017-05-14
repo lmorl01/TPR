@@ -48,12 +48,12 @@ foreach (my $i = 0; $i < @files; $i++){
 		my $pdbCode = getPdbCodeFromFatcatResultFile($inPath);
 		my @startEndResidues = getStartEndResiduesFromFatcatResultFile($inPath);	
 		
-		print $pdbCode, "\nStart: ", $startEndResidues[0], "\nEnd: ", $startEndResidues[1], "\n";
+		print $pdbCode, "\nStart: ", $startEndResidues[0], "\nEnd: ", $startEndResidues[1], "\nChain: ", $startEndResidues[2], "\n";
 		
 		my $outFile = $outDir."\/".$pdbCode."_trunc.pdb";	
 		my $pdbPath = $pdbDir."\/pdb".$pdbCode.".ent";
 		
-		truncatePDBFile($pdbPath, $outFile, $startEndResidues[0], $startEndResidues[1]);
+		truncatePDBFile($pdbPath, $outFile, $startEndResidues[0], $startEndResidues[1], $startEndResidues[2]);
 	}	
 }
 

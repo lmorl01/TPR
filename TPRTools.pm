@@ -102,7 +102,9 @@ sub getPdbCodeFromFatcatResultFile($){
 # 	string 		$_[0]: the path to the file that the residue numbers need to be 
 #				extracted from
 # Return: 
-#	an array (start, end) containing the start and end residue numbers of the match
+#	an array (start, end, chainID) containing the start and end residue numbers of the 
+#	match and the ID of the chain that they feature in
+#
 # Assumptions:
 #
 # Error Behaviour: 
@@ -113,25 +115,27 @@ sub getStartEndResiduesFromFatcatResultFile($){
 	my $path = $_[0];
 	my $start = 100000;
 	my $end = 0;
+	my $chainId = "";
 	
 	if ($path =~ /.xml/){
 		
 		open(INFILE, $path);
 		while (my $line = <INFILE>){
-			if ($line =~ /pdbres2="(\d+)"/){
+			if ($line =~ /pdbres2="(\d+)"\schain2="([A-Z])"/){
 				if ($1 < $start){
 					$start = $1;
 				}
 				if ($1 > $end){
 					$end = $1;
 				}
+				$chainId = $2;
 			}
 		}
 	}
 	
 	$start = ($start == 100000) ? 0 : $start;
 	
-	return ($start, $end);
+	return ($start, $end, $chainId);
 	
 }
 
@@ -170,9 +174,7 @@ sub trim($){
 #		happen if we truncate from the N-terminal end and don't bother to recalibrate 
 #		atom serial numbers, which is what we do)
 # 3. 	It is harmless to remove entirely the TER, HETATM, CONECT and MASTER entries
-# 4. 	Nothing about chains needs to be considered (this assumption is likely to be
-# 		naive and is likely to be addressed in a subsequent version of this subroutine)
-# 5. 	We don't need to check for the existence of a file by the same name as the 
+# 4. 	We don't need to check for the existence of a file by the same name as the 
 #		output file and if such a file exists, we can overwrite it without warning
 #
 # Strategy:
@@ -186,11 +188,12 @@ sub trim($){
 #	1. If the input file cannot be opened, report and die
 #	2. If the output file cannot be written, report and die
 #####################################################################################
-sub truncatePDBFile($$$$){
+sub truncatePDBFile($$$$$){
 my $in = $_[0];
 my $out = $_[1];
 my $start = $_[2];
 my $end = $_[3];
+my $chainId = $_[4];
 my $removalCount = 0;
 
 open (INFILE, "<$in")
@@ -201,29 +204,43 @@ open (OUTFILE, ">$out")
 while (my $line = <INFILE>){
 	
 	my $remove = 0;
-	
-	if ($line =~ /^HELIX\s+\d+\s+\d+\s+[A-Z]+\s+[A-Z]+\s+(\d+)/){
-		if (($1 < $start) || ($1 > $end)){
+
+	if (($line =~ /^HELIX/)){
+		my $res1 = trim(substr($line, 21,4)); # in the PDB file spec for HELIX, col 22-25 is initial residue seq no.
+		my $res2 = trim(substr($line, 33,4)); # in the PDB file spec for HELIX, col 34-37 is terminal residue seq no.
+		my $chain1 = substr($line, 19, 1);	 # in the PDB file spec for HELIX, col 20 is initial chain id
+		my $chain2 = substr($line, 31, 1);	 # in the PDB file spec for HELIX, col 32 is terminal chain id
+		if (($res2 < $start) || ($res1 > $end) || (($chain1 ne $chainId) && ($chain2 ne $chainId))){
 			$remove = 1;
 			$removalCount++;
 		}
 	}
-	if ($line =~ /^SHEET\s+\d+\s+\d+\s+[A-Z]+\s+[A-Z]+\s+(\d+)/){
-	if (($1 < $start) || ($1 > $end)){
-			$remove = 1;
-			$removalCount++;
-		}
-	}
-	if ($line =~ /^ATOM\s+\d+\s+[A-Z0-9]+\s+[A-Z]+\s+[A-Z]+\s+(\d+)/){
-		if (($1 < $start) || ($1 > $end)){
+
+	if (($line =~ /^SHEET/)){
+		my $res1 = trim(substr($line, 22,4)); # in the PDB file spec for HELIX, col 22-25 is initial residue seq no.
+		my $res2 = trim(substr($line, 33,4)); # in the PDB file spec for HELIX, col 34-37 is terminal residue seq no.
+		my $chain1 = substr($line, 21, 1);	 # in the PDB file spec for HELIX, col 20 is initial chain id
+		my $chain2 = substr($line, 32, 1);	 # in the PDB file spec for HELIX, col 32 is terminal chain id
+		if (($res2 < $start) || ($res1 > $end) || (($chain1 ne $chainId) && ($chain2 ne $chainId))){
 			$remove = 1;
 			$removalCount++;
 		}
 	}	
+
+	if ($line =~ /^ATOM/){
+		my $res = trim(substr($line, 22,4)); # in the PDB file spec for ATOM, col 23-26 is residue seq no.
+		my $chain = substr($line, 21, 1);	 # in the PDB file spec for ATOM, col 22 is chain id
+		if (($res < $start) || ($res > $end) || ($chain ne $chainId)){
+			$remove = 1;
+			$removalCount++;
+		}
+	}	
+	
 	if ($line =~ /^TER\s/ || $line =~ /^HETATM\s/ || $line =~ /^CONECT\s/ || $line =~ /^MASTER\s/){
 			$remove = 1;
 			$removalCount++;		
-	}		
+	}
+	
 	if (!$remove){
 		print OUTFILE $line;
 	}	
