@@ -23,10 +23,133 @@ use warnings;
 use Exporter;
 
 our @ISA = ("Exporter");
-our @EXPORT = qw(truncatePDBFile);
+our @EXPORT = ("determinePdbFromPdbText", "getPdbCodeFromFatcatResultFile", 
+	"getStartEndResiduesFromFatcatResultFile", "truncatePDBFile");
 
+sub determinePdbFromPdbText($);
+sub getPdbCodeFromFatcatResultFile($);
+sub getStartEndResiduesFromFatcatResultFile($);
 sub trim($);
 sub truncatePDBFile($$$$);
+
+#####################################################################################
+# Purpose: 	To extract the PDB code from a 'PDB Text' string generated from FATCAT 
+#			analysis
+# Arguments: 
+# 	string 		$_[0]: the line of output that the PDB code needs to be extracted from
+# Return: 
+#	a string representing the four-character PDB code in lowercase
+# Assumptions:
+#	The PDB codes will come in one of three formats as per the examples below:
+#	d1914a1		# The PDB code comes after the 'd'
+#	1APY.A		# The PDB code comes immediately after the white space and is 
+#				  followed by a '.' and an upper or lower case letter or number
+#	PDP:2WPXAc	# The PDB code comes after 'PDP:'
+# Error Behaviour: 
+#	If there's no match to any of the formats above, an empty string is returned
+#####################################################################################
+ sub determinePdbFromPdbText($){ 
+
+ if ($_[0] =~ m/^d([A-Za-z0-9:.]+_?)$/){
+	return lc substr($1,0,4);
+ } elsif ($_[0] =~ m/^PDP:([A-Za-z0-9:.]+_?)$/){
+	return lc substr($1,0,4);
+ } elsif ($_[0] =~ m/^([A-Z0-9]{4}).[A-Za-z0-9]{1}$/){
+	return lc $1;
+ } else {
+	return "";
+ }
+}
+
+#####################################################################################
+# Purpose: 	To extract the PDB code from a FATCAT DB Search result file in the format
+#			dbsearch_CUSTOM_d1a17a.xml
+# Arguments: 
+# 	string 		$_[0]: the path to the file that the PDB code needs to be extracted from
+# Return: 
+#	a string representing the four-character PDB code in lowercase
+# Assumptions:
+#	The PDB codes will come in one of three formats as per the examples below:
+#	d1914a1		# The PDB code comes after the 'd'
+#	1APY.A		# The PDB code comes immediately after the white space and is 
+#				  followed by a '.' and an upper or lower case letter or number
+#	PDP:2WPXAc	# The PDB code comes after 'PDP:'
+# Error Behaviour: 
+#	If there's no match to any of the formats above, an empty string is returned
+#####################################################################################
+sub getPdbCodeFromFatcatResultFile($){
+	my $path = $_[0];
+	my $pdbCode = "";
+	if ($path =~ /.xml/){
+		if (open(INFILE, $path)){
+			my $header = <INFILE>;
+			if ($header =~ /name2=\"([A-Za-z0-9:.]+_?)\"/){
+				$pdbCode = determinePdbFromPdbText($1);
+			}
+		close(INFILE);		
+		}
+		else {
+			print STDERR "Unable to open file: ", $path, "\n";
+		}
+	}
+	return $pdbCode;
+}
+
+#####################################################################################
+# Purpose: 	To extract the start and end residue numbers of the match/result from a 
+#			FATCAT DB Search result file in the format dbsearch_CUSTOM_d1a17a.xml
+# Arguments: 
+# 	string 		$_[0]: the path to the file that the residue numbers need to be 
+#				extracted from
+# Return: 
+#	an array (start, end) containing the start and end residue numbers of the match
+# Assumptions:
+#
+# Error Behaviour: 
+#	In the event of a problem, a (0,0) array is returned
+#####################################################################################
+sub getStartEndResiduesFromFatcatResultFile($){
+
+	my $path = $_[0];
+	my $start = 100000;
+	my $end = 0;
+	
+	if ($path =~ /.xml/){
+		
+		open(INFILE, $path);
+		while (my $line = <INFILE>){
+			if ($line =~ /pdbres2="(\d+)"/){
+				if ($1 < $start){
+					$start = $1;
+				}
+				if ($1 > $end){
+					$end = $1;
+				}
+			}
+		}
+	}
+	
+	$start = ($start == 100000) ? 0 : $start;
+	
+	return ($start, $end);
+	
+}
+
+#####################################################################################
+# Purpose: 	Trims whitespace from either end of a String
+# Arguments: 
+# 	string 		$_[0]: 	the string to be trimmed
+# Return: 
+#	string		The trimmed string
+# Error Behaviour: 
+#	None
+#####################################################################################
+sub trim($){
+	my $string = shift;
+	$string =~ s/^\s+//;
+	$string =~ s/\s+$//;
+	return $string;
+}
 
 #####################################################################################
 # Purpose: 	Truncate a PDB file such that it represents a new structure containing
@@ -108,20 +231,8 @@ while (my $line = <INFILE>){
   return $removalCount;
 }
 
-#####################################################################################
-# Purpose: 	Trims whitespace from either end of a String
-# Arguments: 
-# 	string 		$_[0]: 	the string to be trimmed
-# Return: 
-#	string		The trimmed string
-# Error Behaviour: 
-#	None
-#####################################################################################
-sub trim($){
-	my $string = shift;
-	$string =~ s/^\s+//;
-	$string =~ s/\s+$//;
-	return $string;
-}
+
+
+
 
 1;

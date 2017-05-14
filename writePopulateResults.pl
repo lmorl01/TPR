@@ -38,7 +38,9 @@
 use strict;
 use warnings;
 
-sub determineTargetPdb($);
+use TPRTools;
+
+#sub determineTargetPdb($);
 sub writePdbEntry($$);
 sub writeResults($$$$$$$$$$$$$);
 
@@ -79,7 +81,7 @@ else {
 
 while (my $line = <INFILE>) {
 	my @results = split /\t/, $line;	
-	my $targetPdb = determineTargetPdb($results[1]);
+	my $targetPdb = determinePdbFromPdbText($results[1]);
 	my $alignedResidues = int (($results[5]/100)*$results[7]);
 	writePdbEntry($targetPdb, $results[10]);
 	writeResults($experimentId, $targetPdb, $results[1], $results[2], $results[3], $results[4], $results[5], $results[6], $results[7], $results[8], $results[9], $alignedResidues, $results[10]);
@@ -107,19 +109,19 @@ while (my $line = <INFILE>) {
 #	to STDERR reporting the message "Couldn't process: " + the line that could
 #	not be processed.
 #########################################################################
- sub determineTargetPdb($){ 
+ # sub determineTargetPdb($){ 
 
- if ($_[0] =~ m/^d([A-Za-z0-9:.]+_?)$/){
-	return lc substr($1,0,4);
- } elsif ($_[0] =~ m/^PDP:([A-Za-z0-9:.]+_?)$/){
-	return lc substr($1,0,4);
- } elsif ($_[0] =~ m/^([A-Z0-9]{4}).[A-Za-z0-9]{1}$/){
-	return lc $1;
- } else {
-	print STDERR "Couldn't process ", $_[0], "\n";
- }
+ # if ($_[0] =~ m/^d([A-Za-z0-9:.]+_?)$/){
+	# return lc substr($1,0,4);
+ # } elsif ($_[0] =~ m/^PDP:([A-Za-z0-9:.]+_?)$/){
+	# return lc substr($1,0,4);
+ # } elsif ($_[0] =~ m/^([A-Z0-9]{4}).[A-Za-z0-9]{1}$/){
+	# return lc $1;
+ # } else {
+	# print STDERR "Couldn't process ", $_[0], "\n";
+ # }
  
-}
+# }
 
  sub writePdbEntry($$){
 	# my ($regionId, $startResidue, $endResidue, $tprOrdinal) = split /,/, $line, 4;
