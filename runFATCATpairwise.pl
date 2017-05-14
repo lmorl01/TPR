@@ -59,7 +59,7 @@ my $fatcatDir = $ARGV[0];
 my $pdbDir = $ARGV[1];
 my $outDir = $ARGV[2];
 
-opendir DIR, $resDir;
+opendir DIR, $pdbDir;
 my @files = readdir DIR;
 
 foreach (my $i = 1; $i < @files; $i++){
