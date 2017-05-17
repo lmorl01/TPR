@@ -64,10 +64,8 @@ my @files = readdir DIR;
 
 foreach (my $i = 1; $i < @files; $i++){
 	foreach (my $j = 0; $j < $i; $j++){
-		system("bash $fatcatDir\/runFATCAT.sh -file1 $files[$i] -file2 $files[$j] -outFile $outDir");
-	
+		system("bash $fatcatDir\/runFATCAT.sh -flexible -file1 $pdbDir\/$files[$i] -file2 $pdbDir\/$files[$j] -outFile $outDir\/$files[$i]_$files[$j].align");
 	}
-
 }
 
 
