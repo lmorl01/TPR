@@ -24,13 +24,14 @@ use Exporter;
 
 our @ISA = ("Exporter");
 our @EXPORT = ("determinePdbFromPdbText", "getPdbCodeFromFatcatResultFile", 
-	"getStartEndResiduesFromFatcatResultFile", "truncatePDBFile");
+	"getStartEndResiduesFromFatcatResultFile", "truncatePDBFile", "extractAlignmentRegion");
 
 sub determinePdbFromPdbText($);
+sub extractAlignmentRegion($);
 sub getPdbCodeFromFatcatResultFile($);
 sub getStartEndResiduesFromFatcatResultFile($);
 sub trim($);
-sub truncatePDBFile($$$$);
+sub truncatePDBFile($$$$$);
 
 #####################################################################################
 # Purpose: 	To extract the PDB code from a 'PDB Text' string generated from FATCAT 
@@ -62,6 +63,26 @@ sub truncatePDBFile($$$$);
 }
 
 #####################################################################################
+# Purpose: 	To extract the PDB alignment region from a FATCAT search result file
+#			and return it in the following format: 1a17:(A:22-125)
+# Arguments: 
+# 	string 		$_[0]: the alignment filepath
+# Return: 
+#	a string representing the alignment details in the format 1a17:(A:22-125)
+# Assumptions:
+#
+# Error Behaviour: 
+#	If the file is not an xml file, return an empty string
+#	
+#####################################################################################
+sub extractAlignmentRegion($){
+
+	my $pdbCode = getPdbCodeFromFatcatResultFile($_[0]);
+	my ($start, $end, $chainId) = getStartEndResiduesFromFatcatResultFile($_[0]);
+	return $pdbCode.":(".$chainId.":".$start."-".$end.")";
+}
+
+#####################################################################################
 # Purpose: 	To extract the PDB code from a FATCAT DB Search result file in the format
 #			dbsearch_CUSTOM_d1a17a.xml
 # Arguments: 
@@ -86,7 +107,8 @@ sub getPdbCodeFromFatcatResultFile($){
 			if ($header =~ /name2=\"([A-Za-z0-9:.]+_?)\"/){
 				$pdbCode = determinePdbFromPdbText($1);
 			}
-		close(INFILE);		
+			close(INFILE);		
+			
 		}
 		else {
 			print STDERR "Unable to open file: ", $path, "\n";
