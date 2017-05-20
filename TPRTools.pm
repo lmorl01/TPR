@@ -143,7 +143,7 @@ sub getStartEndResiduesFromFatcatResultFile($){
 		
 		open(INFILE, $path);
 		while (my $line = <INFILE>){
-			if ($line =~ /pdbres2="(\d+)"\schain2="([A-Z])"/){
+			if ($line =~ /pdbres2="(\d+)"\schain2="([A-Za-z])"/){
 				if ($1 < $start){
 					$start = $1;
 				}
