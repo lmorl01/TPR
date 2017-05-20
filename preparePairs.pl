@@ -85,9 +85,12 @@ foreach (my $i = 0; $i < @files; $i++){
 	}			
 }	
 
+open (OUTFILE, ">$out")
+	or die "Can't create outputfile $out\n";
+
 foreach (my $i = 0; $i < @alignmentRegions; $i++){
-	print $alignmentRegions[$i], "\n";
-	#This needs to be implemented
-	
+	foreach (my $j = 0; $j < $i; $j++){
+		print OUTFILE $alignmentRegions[$i], " ", $alignmentRegions[$j], "\n";
+	}	
 }	
 
