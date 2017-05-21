@@ -135,7 +135,8 @@ sub getPdbCodeFromFatcatResultFile($){
 sub getStartEndResiduesFromFatcatResultFile($){
 
 	my $path = $_[0];
-	my $start = 100000;
+	my $largeNo = 10000000;
+	my $start = $largeNo;
 	my $end = 0;
 	my $chainId = "";
 	
@@ -143,7 +144,7 @@ sub getStartEndResiduesFromFatcatResultFile($){
 		
 		open(INFILE, $path);
 		while (my $line = <INFILE>){
-			if ($line =~ /pdbres2="(\d+)"\schain2="([A-Za-z])"/){
+			if ($line =~ /pdbres2="(\d+)"\schain2="([A-Za-z0-9])"/){
 				if ($1 < $start){
 					$start = $1;
 				}
@@ -155,7 +156,7 @@ sub getStartEndResiduesFromFatcatResultFile($){
 		}
 	}
 	
-	$start = ($start == 100000) ? 0 : $start;
+	$start = ($start == $largeNo) ? 0 : $start;
 	
 	return ($start, $end, $chainId);
 	
