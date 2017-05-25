@@ -1,5 +1,5 @@
 ###################################################################################
-# David Morley, MSc Bioinformatics 2015-2017
+# David Morley, MSc Bioinformatics 2015-2017 
 # MSc Project: Origian & Evolution of TPR Domains
 # Author: David Morley
 # Script Name: copyResults.pl
