@@ -1,4 +1,4 @@
-# David Morley, MSc Bioinformatics 2015-2017
+# David Morley, MSc Bioinformatics 2015-2017 
 # MSc Project: Origin & Evolution of TPR Domains
 # Version: 002, 13/03/2017
 #
