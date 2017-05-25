@@ -1,5 +1,5 @@
 #################################################################################
-# David Morley, MSc Bioinformatics 2015-2017
+# David Morley, MSc Bioinformatics 2015-2017 
 # MSc Project: Origin & Evolution of TPR Domains
 # Author: David Morley
 # Script Name: truncatePDB.pl
