@@ -1,6 +1,6 @@
 ###################################################################################
 # David Morley, MSc Bioinformatics 2015-2017
-# MSc Project: Origian & Evolution of TPR Domains
+# MSc Project: Origian & Evolution of TPR Domains 
 # Author: David Morley
 # Script Name: copyResultsPDB.pl
 # Version: 0.001 (02/04/17 22:34)
