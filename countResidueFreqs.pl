@@ -44,13 +44,9 @@ my $out = $ARGV[1];
 open(OUTFILE, ">$out")
     or die "Can't create outputfile $out\n";
 
-
 my @residueCount = (0) x 1000;
 
 foreach (my $i = 0; $i <  @files; $i++){
-#    if ($i > 3){
-#	exit;
-#   }
 
     if ($files[$i] =~ /.xml/){
 	my $path = $dir."\/".$files[$i];
@@ -67,16 +63,11 @@ foreach (my $i = 0; $i <  @files; $i++){
     close(INFILE) or die "Unable to close file ", $path, "\n";
     }
 }    
-#    foreach my $residue (sort keys %residueCount){
-#	print $residue, ": ", $residueCount{$residue}, "\n";
-#    }
+
 for (my $i = 0; $i < @residueCount; $i++){
     if ($residueCount[$i] > 0){
-	#print "Residue: ", $i, " Freq: ", $residueCount[$i], "\n";
 	print OUTFILE $i, ",", $residueCount[$i], "\n";
     }
 }
-
-
 
 closedir DIR;
