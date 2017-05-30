@@ -1,9 +1,9 @@
 #################################################################################
-# David Morley, MSc Bioinformatics 2015-2017 
+# David Morley, MSc Bioinformatics 2015-2017
 # MSc Project: Origin & Evolution of TPR Domains
 # Author: David Morley
 # Script Name: prepareSimilarityMatrix.pl
-# Version: 0001 (21/05/17 13:18)
+# Version: 0002 (24/05/17 19:41)
 #
 # Purpose: 	Given the output from the FATCAT -alignPairs program, produce a 
 #			similarity matrix of normalised RMSDs for analysis in R
@@ -62,8 +62,12 @@ $junk = <INFILE>;
 	
 while (my $line = <INFILE>){
 	my @values = split(/\s+/, $line);
-	my $pdb1 = substr($values[0],0,4);
-	my $pdb2 = substr($values[1],0,4);
+	#my $pdb1 = substr($values[0],0,4);
+	#my $pdb2 = substr($values[1],0,4);
+	#my $pdb1 = substr($values[0],0,4).substr($values[0],6,1);
+	#my $pdb2 = substr($values[1],0,4).substr($values[1],6,1);
+	my $pdb1 = $values[0];
+	my $pdb2 = $values[1];
 	my $norm_rmsd = ($values[5] == 0 || $values[7] == 0) ? 0 : $values[4]/(sqrt($values[5]*$values[7]/100));
 	print "pdb 1: ", $pdb1, " pdb 2: ", $pdb2, " rmsd: ", $norm_rmsd, "\n";
 	if (!exists($indices{$pdb1})){
@@ -80,12 +84,17 @@ while (my $line = <INFILE>){
 	$similarityMatrix[$indices{$pdb2}][$indices{$pdb1}] = $norm_rmsd;
 }	
 
+#print OUTFILE " ";
+
 foreach my $pdb (sort { $indices{$a} <=> $indices{$b} } keys %indices){
 	print OUTFILE $pdb, " ";
 } 
 print OUTFILE "\n";
 
+#my @rowHeaders = sort { $indices{$a} <=> $indices{$b} } keys %indices;
+
 foreach (my $i = 0; $i < @similarityMatrix; $i++){
+#	print OUTFILE $rowHeaders[$i], " ";
 	foreach (my $j = 0; $j < @similarityMatrix; $j++){
 		print OUTFILE $similarityMatrix[$i][$j], " ";
 	}
