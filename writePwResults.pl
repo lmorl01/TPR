@@ -112,7 +112,7 @@ while (my $line = <INFILE>) {
 	print $ignored, " unexpected line formats ignored.\n"
  }
  print "Maximum number of aligned residues: ", $maxAlignedResidues, "\n"; #Out of interest
- print $processed, " pairwise results processed. Use the script $out to import these into the database.";
+ print $processed, " pairwise results processed. Use the script $out to import these into the database.\n";
  
  sub writeResults($$$$$$$$$$$$$$$$$$$){
 	print OUTFILE "INSERT INTO PWSimilarity (experimentId, pdb1, chain1, start1, end1, pdb2, chain2, start2, end2, score, probability, rmsd, normRmsd, len1, len2, cov1, cov2, percentId, alignedResidues) VALUES ($_[0], \"$_[1]\", \"$_[2]\", $_[3], $_[4], \"$_[5]\", \"$_[6]\", $_[7], $_[8], $_[9], $_[10], $_[11], $_[12], $_[13], $_[14], $_[15], $_[16], $_[17], $_[18]);\n";
