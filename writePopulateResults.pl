@@ -1,7 +1,10 @@
 #####################################################################################
 # David Morley, MSc Bioinformatics 2015-2017
 # MSc Project: Origin & Evolution of TPR Domains
-# Version: 003, 29/05/2017
+# Version: 004, 03/06/2017
+#
+# Version History:
+# 004: Addition of norm_RMSD column to the database
 #
 # Purpose: Write a script to populate the the following table:
 #
@@ -15,6 +18,7 @@
 # | score             | float       | YES  |     | NULL    |                |
 # | probability       | float       | YES  |     | NULL    |                |
 # | rmsd              | float       | YES  |     | NULL    |                |
+# | norm_rmsd         | float       | YES  |     | NULL    |                |
 # | len1              | int(11)     | YES  |     | NULL    |                |
 # | len2              | int(11)     | YES  |     | NULL    |                |
 # | cov1              | int(11)     | YES  |     | NULL    |                |
@@ -26,8 +30,8 @@
 #
 # Program writes lines of the form:
 # INSERT IGNORE INTO PDBEntry (pdbCode) VALUES (CHAR(4));
-# INSERT INTO Results (experimentId, resultPdb, resultPdbText, score, probability, rmsd, len1, len2, cov1, cov2, percentId, alignedResidues, 
-# targetDescription) VALUES (INT, CHAR(4), VARCHAR, FLOAT, FLOAT, FLOAT, INT, INT, INT, INT, FLOAT, INT, TEXT)
+# INSERT INTO Results (experimentId, resultPdb, resultPdbText, score, probability, rmsd, norm_rmsd, len1, len2, cov1, cov2, percentId, alignedResidues, 
+# targetDescription) VALUES (INT, CHAR(4), VARCHAR, FLOAT, FLOAT, FLOAT, FLOAT, INT, INT, INT, INT, FLOAT, INT, TEXT)
 #
 # Usage: perl writePopulateResults.pl experimentId results_CUSTOM.out populateResults.sql
 # where...
@@ -42,7 +46,7 @@ use warnings;
 use TPRTools;
 
 sub writePdbEntry($$);
-sub writeResults($$$$$$$$$$$$$);
+sub writeResults($$$$$$$$$$$$$$);
 
 if (!(scalar @ARGV == 3 && $ARGV[0] =~ /^\d+$/)){
 	print "Usage: perl writePopulateResults.pl experimentId results_CUSTOM.out populateResults.sql\n";
@@ -72,9 +76,10 @@ else {
 while (my $line = <INFILE>) {
 	my @results = split /\t/, $line;	
 	my $targetPdb = determinePdbFromPdbText($results[1]);
-	my $alignedResidues = int (($results[5]/100)*$results[7]);
+	my $alignedResidues = int (($results[5]/100)*$results[7]); 	# (len1/100)*cov1
+	my $norm_rmsd = $results[4]/sqrt($alignedResidues);			# normalised RMSD = RMSD/sqrt(n)
 	writePdbEntry($targetPdb, $results[10]);
-	writeResults($experimentId, $targetPdb, $results[1], $results[2], $results[3], $results[4], $results[5], $results[6], $results[7], $results[8], $results[9], $alignedResidues, $results[10]);
+	writeResults($experimentId, $targetPdb, $results[1], $results[2], $results[3], $results[4], $norm_rmsd, $results[5], $results[6], $results[7], $results[8], $results[9], $alignedResidues, $results[10]);
  }  
  close(INFILE) or die "Unable to close input file";
  close(OUTFILE) or die "Unable to close output file";
@@ -84,9 +89,5 @@ while (my $line = <INFILE>) {
  }
  
  sub writeResults($$$$$$$$$$$$$){
-	print OUTFILE "INSERT INTO Results (experimentId, resultPdb, resultPdbText, score, probability, rmsd, len1, len2, cov1, cov2, percentId, alignedResidues, targetDescription) VALUES ($_[0], \"$_[1]\", \"$_[2]\", $_[3], $_[4], $_[5], $_[6], $_[7], $_[8], $_[9], $_[10], $_[11], \"$_[12]\");\n";
+	print OUTFILE "INSERT INTO Results (experimentId, resultPdb, resultPdbText, score, probability, rmsd, norm_rmsd, len1, len2, cov1, cov2, percentId, alignedResidues, targetDescription) VALUES ($_[0], \"$_[1]\", \"$_[2]\", $_[3], $_[4], $_[5], $_[6], $_[7], $_[8], $_[9], $_[10], $_[11], $_[12], \"$_[13]\");\n";
  }
-
-
-
-
