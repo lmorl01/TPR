@@ -30,6 +30,9 @@
 --# | count             | int         | YES  |     | NULL    |                |
 --# +-------------------+-------------+------+-----+---------+----------------+
 
+DROP TABLE IF EXISTS SearchHit;
+DROP TABLE IF EXISTS TentativeTPR;
+
 CREATE TABLE TentativeTPR
 (	tentativeTPRId		INT				SERIAL DEFAULT VALUE,
 	pdbCode				CHAR(4)			,
@@ -49,6 +52,7 @@ CREATE INDEX ixPdbTTPR ON TentativeTPR (pdbCode);
 CREATE TABLE SearchHit
 (	matchId				INT				SERIAL DEFAULT VALUE,
 	tentativeTPRId		INT				,
+	experimentId		INT				,
 	pdbCode				CHAR(4)			,
 	chain				VARCHAR(5)		,
 	start				FLOAT			,
@@ -58,6 +62,9 @@ CREATE TABLE SearchHit
 		ON DELETE RESTRICT 
 		ON UPDATE CASCADE,	
 	FOREIGN KEY (pdbCode) REFERENCES PDBEntry(pdbCode)
+		ON DELETE RESTRICT 
+		ON UPDATE CASCADE,
+	FOREIGN KEY (experimentId) REFERENCES Experiment(experimentId)
 		ON DELETE RESTRICT 
 		ON UPDATE CASCADE
 );

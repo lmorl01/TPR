@@ -1,11 +1,12 @@
 
 -- David Morley, MSc Bioinformatics 2015-2017
 -- MSc Project: Origin & Evolution of TPR Domains
--- Version: 003, 01/06/2017
+-- Version: 004, 04/06/2017
 -- Version History:
 -- 001: Initial Version creates tables PDBEntry, TPRRegion, TPR, Experiment, Result
 -- 002: Amendments to tables Experiment & Result and addition of table ParameterSet
 -- 003: Addition of creation statement for table PWSimilarity
+-- 004: Addition of creation statement for TentativeTPR and SearchHit tables
 
 CREATE TABLE PDBEntry
 (	pdbCode			CHAR(4)			NOT NULL,
@@ -157,7 +158,7 @@ CREATE TABLE TentativeTPR
 	PRIMARY KEY (tentativeTPRId),
 	FOREIGN KEY (pdbCode) REFERENCES PDBEntry(pdbCode)
 		ON DELETE RESTRICT 
-		ON UPDATE CASCADE,
+		ON UPDATE CASCADE
 );
 
 CREATE INDEX ixTentativeTPRId ON TentativeTPR (tentativeTPRId);
@@ -166,6 +167,7 @@ CREATE INDEX ixPdbTTPR ON TentativeTPR (pdbCode);
 CREATE TABLE SearchHit
 (	matchId				INT				SERIAL DEFAULT VALUE,
 	tentativeTPRId		INT				,
+	experimentId		INT				,
 	pdbCode				CHAR(4)			,
 	chain				VARCHAR(5)		,
 	start				FLOAT			,
@@ -177,6 +179,9 @@ CREATE TABLE SearchHit
 	FOREIGN KEY (pdbCode) REFERENCES PDBEntry(pdbCode)
 		ON DELETE RESTRICT 
 		ON UPDATE CASCADE,
+	FOREIGN KEY (experimentId) REFERENCES Experiment(experimentId)
+		ON DELETE RESTRICT 
+		ON UPDATE CASCADE
 );
 
 CREATE INDEX ixMatchId ON SearchHit (matchId);
