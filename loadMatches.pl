@@ -137,9 +137,7 @@ foreach (my $i = 0; $i < @files; $i++){
 			writeAddHit($pdbCode, $chainId, $start, $end, -1);
 		}
 		
-	}	else {
-		print $files[$i], "\n";
-	}		
+	}	
 }
 
 # print "\nUpdated TentativeTPRs\n";
