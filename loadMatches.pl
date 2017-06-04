@@ -36,7 +36,7 @@
 # | end               | int         | YES  |     | NULL    |                |
 # +-------------------+-------------+------+-----+---------+----------------+
 #
-# TentativeTPRRegion
+# TentativeTPR
 #
 # +-------------------+-------------+------+-----+---------+----------------+
 # | Field             | Type        | Null | Key | Default | Extra          |
@@ -44,8 +44,8 @@
 # | tentativeTPRId    | int(11)     | NO   | PRI | NULL    | auto_increment |
 # | pdbCode           | char(4)     | YES  | MUL | NULL    |                |
 # | chain             | varchar(5)  | YES  |     | NULL    |                |
-# | start             | int         | YES  |     | NULL    |                |
-# | end               | int         | YES  |     | NULL    |                |
+# | start             | float       | YES  |     | NULL    |                |
+# | end               | float       | YES  |     | NULL    |                |
 # | count             | int         | YES  |     | NULL    |                |
 # +-------------------+-------------+------+-----+---------+----------------+
 #
@@ -106,10 +106,11 @@ while (my $line = <INFILE>) {
 	if (!exists $tentativeTPRs{$pdbChain}){
 		my @emptyArray;
 		$tentativeTPRs{$pdbChain} = \@emptyArray;
-		push $tentativeTPRs{$pdbChain}, \@tprRegion;
+		$tentativeTPRs{$pdbChain}[0] = \@tprRegion;
 	} else {
 		print "Familiar PDB Chain found\n";
-		push $tentativeTPRs{$pdbChain}, \@tprRegion;		
+		#push $tentativeTPRs{$pdbChain}, \@tprRegion;		
+		$tentativeTPRs{$pdbChain}[scalar @{$tentativeTPRs{$pdbChain}}] = \@tprRegion;		
 	}
 }	  
 
@@ -180,9 +181,10 @@ sub writeAddTentativeTPR($$$$){
 	if (!exists $tentativeTPRs{$pdbChain}){
 		my @emptyArray;
 		$tentativeTPRs{$pdbChain} = \@emptyArray;
-		push $tentativeTPRs{$pdbChain}, \@tprRegion;		
+		$tentativeTPRs{$pdbChain}[0] = \@tprRegion;		
 	} else {
-		push $tentativeTPRs{$pdbChain}, \@tprRegion;
+		# push $tentativeTPRs{$pdbChain}, \@tprRegion;
+		$tentativeTPRs{$pdbChain}[scalar @{$tentativeTPRs{$pdbChain}}] = \@tprRegion;
 	}
 	print OUTFILE "INSERT INTO TentativeTPRRegion (pdbCode, chain, start, end, count) VALUES (\"$pdbCode\", \"$chain\", $start, $end, 1);\n";
 	return;
