@@ -147,3 +147,38 @@ CREATE INDEX ixPwId ON PWSimilarity (pwId);
 CREATE INDEX ixPdb1 ON PWSimilarity (pdb1);
 CREATE INDEX ixPdb2 ON PWSimilarity (pdb2);
 
+CREATE TABLE TentativeTPR
+(	tentativeTPRId		INT				SERIAL DEFAULT VALUE,
+	pdbCode				CHAR(4)			,
+	chain				VARCHAR(5)		,
+	start				FLOAT			,
+	end					FLOAT			,
+	count				INT				,
+	PRIMARY KEY (tentativeTPRId),
+	FOREIGN KEY (pdbCode) REFERENCES PDBEntry(pdbCode)
+		ON DELETE RESTRICT 
+		ON UPDATE CASCADE,
+);
+
+CREATE INDEX ixTentativeTPRId ON TentativeTPR (tentativeTPRId);
+CREATE INDEX ixPdbTTPR ON TentativeTPR (pdbCode);
+
+CREATE TABLE SearchHit
+(	matchId				INT				SERIAL DEFAULT VALUE,
+	tentativeTPRId		INT				,
+	pdbCode				CHAR(4)			,
+	chain				VARCHAR(5)		,
+	start				FLOAT			,
+	end					FLOAT			,
+	PRIMARY KEY (matchId),
+	FOREIGN KEY (tentativeTPRId) REFERENCES TentativeTPR(tentativeTPRId)
+		ON DELETE RESTRICT 
+		ON UPDATE CASCADE,	
+	FOREIGN KEY (pdbCode) REFERENCES PDBEntry(pdbCode)
+		ON DELETE RESTRICT 
+		ON UPDATE CASCADE,
+);
+
+CREATE INDEX ixMatchId ON SearchHit (matchId);
+CREATE INDEX ixTentativeTPRIdSH ON SearchHit (tentativeTPRId);
+CREATE INDEX ixPdbSH ON SearchHit (pdbCode);
