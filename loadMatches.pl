@@ -181,7 +181,7 @@ sub writeUpdateTentativeTPR($$$$$){
 	$tentativeTPRs{$pdbChain}[$ref][1] = ($tentativeTPRs{$pdbChain}[$ref][2]*$tentativeTPRs{$pdbChain}[$ref][1] + $end)/($tentativeTPRs{$pdbChain}[$ref][2] + 1);
 	# The number of structures that have contributed to the averages is updated
 	$tentativeTPRs{$pdbChain}[$ref][2]++;
-	print OUTFILE "UPDATE TentativeTPRRegion SET start = $tentativeTPRs{$pdbChain}[$ref][0], end = $tentativeTPRs{$pdbChain}[$ref][1], count = $tentativeTPRs{$pdbChain}[$ref][2] WHERE tentativeTPRId = $tentativeTPRs{$pdbChain}[$ref][3];\n";
+	print OUTFILE "UPDATE TentativeTPR SET start = $tentativeTPRs{$pdbChain}[$ref][0], end = $tentativeTPRs{$pdbChain}[$ref][1], count = $tentativeTPRs{$pdbChain}[$ref][2] WHERE tentativeTPRId = $tentativeTPRs{$pdbChain}[$ref][3];\n";
 	$updated++;
 	return $tentativeTPRs{$pdbChain}[$ref][3];
 }
@@ -198,7 +198,7 @@ sub writeAddTentativeTPR($$$$){
 		# push $tentativeTPRs{$pdbChain}, \@tprRegion;
 		$tentativeTPRs{$pdbChain}[scalar @{$tentativeTPRs{$pdbChain}}] = \@tprRegion;
 	}
-	print OUTFILE "INSERT INTO TentativeTPRRegion (pdbCode, chain, start, end, count) VALUES (\"$pdbCode\", \"$chain\", $start, $end, 1);\n";
+	print OUTFILE "INSERT INTO TentativeTPR (pdbCode, chain, start, end, count) VALUES (\"$pdbCode\", \"$chain\", $start, $end, 1);\n";
 	$added++;
 	return;
 }
