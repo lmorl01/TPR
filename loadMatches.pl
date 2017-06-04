@@ -142,9 +142,9 @@ foreach (my $i = 0; $i < @files; $i++){
 	}		
 }
 
-print "\nUpdated TentativeTPRs\n";
-printTentativeTPRs();
-print "\n";
+# print "\nUpdated TentativeTPRs\n";
+# printTentativeTPRs();
+# print "\n";
 
 print $fileCount, " files processed\n";
 print $added, " new Tentative TPR Regions identified and added\n";
