@@ -91,6 +91,7 @@ my $in = $ARGV[2];
 my $out = $ARGV[3];
 my %tentativeTPRs;
 my $tolerance = 15;
+my ($fileCount, $added, $updated, $hits) = (0,0,0,0);
 
 open(INFILE, $in)
       or die "Can't open file $in\n"; 
@@ -108,24 +109,25 @@ while (my $line = <INFILE>) {
 		$tentativeTPRs{$pdbChain} = \@emptyArray;
 		$tentativeTPRs{$pdbChain}[0] = \@tprRegion;
 	} else {
-		print "Familiar PDB Chain found\n";
+		#print "Familiar PDB Chain found\n";
 		#push $tentativeTPRs{$pdbChain}, \@tprRegion;		
 		$tentativeTPRs{$pdbChain}[scalar @{$tentativeTPRs{$pdbChain}}] = \@tprRegion;		
 	}
 }	  
 
-printTentativeTPRs();
+#printTentativeTPRs();
  
 opendir DIR, $resDir;
 my @files = readdir DIR;	  
 
-print "\nResults\n";
+#print "\nResults\n";
 foreach (my $i = 0; $i < @files; $i++){
 	
 	if ($files[$i] =~ /.xml/){
+		$fileCount++;
 		my $pdbCode = getPdbCodeFromFatcatResultFile("$resDir\/$files[$i]");
 		my ($start, $end, $chainId) = getStartEndResiduesFromFatcatResultFile("$resDir\/$files[$i]");		
-		print $pdbCode, " ", $chainId, " ", $start, " ", $end, "\n";
+		#print $pdbCode, " ", $chainId, " ", $start, " ", $end, "\n";
 		my ($ref, $tentativeTPRId) = knownTPR($pdbCode, $chainId, $start, $end);
 		if ($ref > -1){
 			my $tentativeTPRId = writeUpdateTentativeTPR($pdbCode, $chainId, $start, $end, $ref);
@@ -135,10 +137,21 @@ foreach (my $i = 0; $i < @files; $i++){
 			writeAddHit($pdbCode, $chainId, $start, $end, -1);
 		}
 		
-	}			
-}	
+	}	else {
+		print $files[$i], "\n";
+	}		
+}
+
 print "\nUpdated TentativeTPRs\n";
 printTentativeTPRs();
+print "\n";
+
+print $fileCount, " files processed\n";
+print $added, " new Tentative TPR Regions identified and added\n";
+print $updated, " existing Tentative TPR Regions recognised and updated\n";
+print $hits, " Search Hits added\n";
+	
+
 
 sub knownTPR($$$$){
 	my $pdbChain = $_[0].$_[1];
@@ -153,17 +166,17 @@ sub knownTPR($$$$){
 				return ($i, $tentativeTPRs{$pdbChain}[$i][3]) ;
 			}
 		}
-		print $_[0].$_[1], " doesn't exist\n";
+		#print $_[0].$_[1], " doesn't exist\n";
 		return -1;
 	} else {
-		print $_[0].$_[1], " doesn't exist\n";
+		#print $_[0].$_[1], " doesn't exist\n";
 		return -1;
 	}
 }
 
 sub writeUpdateTentativeTPR($$$$$){
 	my ($pdbChain, $start, $end, $ref) = ($_[0].$_[1], $_[2], $_[3], $_[4]);
-	print "Updating ", $pdbChain, " ", $start, " ", $end, " ", $ref, " \n";
+	#print "Updating ", $pdbChain, " ", $start, " ", $end, " ", $ref, " \n";
 	# The average position of the start residue is updated 
 	$tentativeTPRs{$pdbChain}[$ref][0] = ($tentativeTPRs{$pdbChain}[$ref][2]*$tentativeTPRs{$pdbChain}[$ref][0] + $start)/($tentativeTPRs{$pdbChain}[$ref][2] + 1);
 	# The average position of the end residue is updated
@@ -171,12 +184,13 @@ sub writeUpdateTentativeTPR($$$$$){
 	# The number of structures that have contributed to the averages is updated
 	$tentativeTPRs{$pdbChain}[$ref][2]++;
 	print OUTFILE "UPDATE TentativeTPRRegion SET start = $tentativeTPRs{$pdbChain}[$ref][0], end = $tentativeTPRs{$pdbChain}[$ref][1], count = $tentativeTPRs{$pdbChain}[$ref][2] WHERE tentativeTPRId = $tentativeTPRs{$pdbChain}[$ref][3];\n";
+	$updated++;
 	return $tentativeTPRs{$pdbChain}[$ref][3];
 }
 
 sub writeAddTentativeTPR($$$$){
 	my ($pdbCode, $chain, $pdbChain, $start, $end) = ($_[0], $_[1], $_[0].$_[1], $_[2], $_[3]);
-	print "Adding ", $pdbChain, " ", $start, " ", $end, " \n";	
+	#print "Adding ", $pdbChain, " ", $start, " ", $end, " \n";	
 	my @tprRegion = ($start, $end, 1, "UNKNOWN");
 	if (!exists $tentativeTPRs{$pdbChain}){
 		my @emptyArray;
@@ -187,6 +201,7 @@ sub writeAddTentativeTPR($$$$){
 		$tentativeTPRs{$pdbChain}[scalar @{$tentativeTPRs{$pdbChain}}] = \@tprRegion;
 	}
 	print OUTFILE "INSERT INTO TentativeTPRRegion (pdbCode, chain, start, end, count) VALUES (\"$pdbCode\", \"$chain\", $start, $end, 1);\n";
+	$added++;
 	return;
 }
 
@@ -199,7 +214,8 @@ sub writeAddHit($$$$$){
 		# Unknown tentativeTPRId, so we have to call it with LAST_INSERT_ID()
 		print OUTFILE "INSERT INTO SearchHit (tentativeTPRId, experimentId, pdbCode, chain, start, end) VALUES (LAST_INSERT_ID(), $experimentId, \"$pdbCode\", \"$chain\", $start, $end);\n";
 	}
-		return;
+	$hits++;
+	return;
 }
 
 sub printTentativeTPRs(){
