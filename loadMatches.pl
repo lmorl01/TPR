@@ -3,7 +3,10 @@
 # MSc Project: Origin & Evolution of TPR Domains
 # Author: David Morley
 # Script Name: loadMatches.pl
-# Version: 0001 (03/06/17 20:05)
+# Version: 0002 (11/06/17 12:54)
+# Change Log:
+# Version 002: 	Updated to include addition of SearchHit.repeats, 
+#				TentativeTPR.repeats, TentativeTPR.firstExperimentId
 #
 # Purpose: 	1. Given a directory of FATCAT DB search results, extract the pdb code, 
 #			chain and residue numbers for each result. 
@@ -34,6 +37,7 @@
 # | chain             | varchar(5)  | YES  |     | NULL    |                |
 # | start             | int         | YES  |     | NULL    |                |
 # | end               | int         | YES  |     | NULL    |                |
+# | repeats           | int         | YES  |     | NULL    |                |
 # +-------------------+-------------+------+-----+---------+----------------+
 #
 # TentativeTPR
@@ -47,6 +51,10 @@
 # | start             | float       | YES  |     | NULL    |                |
 # | end               | float       | YES  |     | NULL    |                |
 # | count             | int         | YES  |     | NULL    |                |
+# | regionId          | int         | YES  |     | NULL    |                |
+# | startOrdinal      | int         | YES  |     | NULL    |                |
+# | repeats           | int         | YES  |     | NULL    |                |
+# | firstExperimentId | int         | YES  |     | NULL    |                |
 # +-------------------+-------------+------+-----+---------+----------------+
 #
 # Strategy: 
@@ -58,11 +66,13 @@
 # Error Behaviour:
 # 1. Print usage instructions if incorrect number of arguments
 #
-# Usage: perl loadMatches.pl experimentId resultDir tentativeTPR.csv out.sql
+# Usage: perl loadMatches.pl experimentId repeats resultDir tentativeTPR.csv out.sql
 #			
 # Arguments: 
 #	experimentId		A foreign key to an entry in the table Experiment relating to 
 #						the experiment that the results derive from
+#	repeats				The number of TPR Repeats associated with these results 
+#						(e.g. 3 for a TPR_1-3 search)
 #	resultDir			The directory where the (top) FATCAT search results are
 #	tentativeTPR.csv	The csv output file	containing all previously identified TPRs
 #	out.sql				The SQL output file for loading this data
@@ -80,15 +90,16 @@ sub writeAddTentativeTPR($$$$);
 sub writeAddHit($$$$$);
 sub printTentativeTPRs();
 
-if (!(scalar @ARGV == 4 && $ARGV[0] =~ /^\d+$/)){
-	print "Usage: perl loadMatches.pl experimentId resultDir tentativeTPR.csv out.sql\n";
+if (!(scalar @ARGV == 5 && $ARGV[0] =~ /^\d+$/ && $ARGV[1] =~ /^\d+$/)){
+	print "Usage: perl loadMatches.pl experimentId repeats resultDir tentativeTPR.csv out.sql\n";
 	exit;
 }
 
 my $experimentId = $ARGV[0];
-my $resDir = $ARGV[1];
-my $in = $ARGV[2];
-my $out = $ARGV[3];
+my $repeats = $ARGV[1];
+my $resDir = $ARGV[2];
+my $in = $ARGV[3];
+my $out = $ARGV[4];
 my %tentativeTPRs;
 my $tolerance = 15;
 my ($fileCount, $added, $updated, $hits) = (0,0,0,0);
@@ -198,7 +209,7 @@ sub writeAddTentativeTPR($$$$){
 		# push $tentativeTPRs{$pdbChain}, \@tprRegion;
 		$tentativeTPRs{$pdbChain}[scalar @{$tentativeTPRs{$pdbChain}}] = \@tprRegion;
 	}
-	print OUTFILE "INSERT INTO TentativeTPR (pdbCode, chain, start, end, count) VALUES (\"$pdbCode\", \"$chain\", $start, $end, 1);\n";
+	print OUTFILE "INSERT INTO TentativeTPR (pdbCode, chain, start, end, count, repeats, firstExperimentId) VALUES (\"$pdbCode\", \"$chain\", $start, $end, 1, $repeats, $experimentId);\n";
 	$added++;
 	return;
 }
@@ -207,10 +218,10 @@ sub writeAddHit($$$$$){
 	my ($pdbCode, $chain, $pdbChain, $start, $end, $tentativeTPRId) = ($_[0], $_[1], $_[0].$_[1], $_[2], $_[3], $_[4]);
 	if ($tentativeTPRId > 0){
 		# Known tentativeTPRId
-		print OUTFILE "INSERT INTO SearchHit (tentativeTPRId, experimentId, pdbCode, chain, start, end) VALUES ($tentativeTPRId, $experimentId, \"$pdbCode\", \"$chain\", $start, $end);\n";
+		print OUTFILE "INSERT INTO SearchHit (tentativeTPRId, experimentId, pdbCode, chain, start, end, repeats) VALUES ($tentativeTPRId, $experimentId, \"$pdbCode\", \"$chain\", $start, $end, $repeats);\n";
 	} else {
 		# Unknown tentativeTPRId, so we have to call it with LAST_INSERT_ID()
-		print OUTFILE "INSERT INTO SearchHit (tentativeTPRId, experimentId, pdbCode, chain, start, end) VALUES (LAST_INSERT_ID(), $experimentId, \"$pdbCode\", \"$chain\", $start, $end);\n";
+		print OUTFILE "INSERT INTO SearchHit (tentativeTPRId, experimentId, pdbCode, chain, start, end, repeats) VALUES (LAST_INSERT_ID(), $experimentId, \"$pdbCode\", \"$chain\", $start, $end, $repeats);\n";
 	}
 	$hits++;
 	return;
