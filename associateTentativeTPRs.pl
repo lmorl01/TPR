@@ -3,9 +3,10 @@
 # MSc Project: Origin & Evolution of TPR Domains
 # Author: David Morley
 # Script Name: associateTentativeTPRs.pl
-# Version: 0002 (11/06/17 16:40)
+# Version: 0003 (11/06/17 20:32)
 # Revision History:
-# Version 002:	Updated to print progress report to STDOUT on conclusion
+# Version 	002: Updated to print progress report to STDOUT on conclusion
+#			003: Updated to print a warning message when a partial match is ignored	
 #
 # Purpose:  Given an extract of current TPR Regions/TPRs and current Tentative
 #			TPRs, identify any missing associations between tentative TPRs
@@ -150,6 +151,13 @@ sub getKnownTPR($$$$){
 			#print $tprSet[0][$i][0], " ", $tprSet[0][$i][1], " ", $tprSet[0][$i][2], " ", $tprSet[0][$i][3],"\n";
 		}
 		#print "Start Match $startMatch, End Match $endMatch\n";
+		if ($startMatch == 1000 && $endMatch == 500){
+			return (0,0);
+		}
+		if ($startMatch == 1000 || $endMatch == 500){
+			print "Partial Match ignored at $pdbChain Start = $start, End = $end\n" ; 
+			return (0,0);
+		}
 		if (($tprSet[0][$endMatch][3] - $tprSet[0][$startMatch][3]) == ($repeats - 1)){
 			my ($regionId, $tprOrdinal) = ($tprSet[0][$startMatch][0], $tprSet[0][$startMatch][3]);
 			#print "$pdbChain Match: region ID $regionId , tpr ordinal $tprOrdinal\n";
@@ -163,7 +171,7 @@ sub getKnownTPR($$$$){
 
 my $pdbCount = scalar keys %TPRs;
 
-print "$tprCount TPRs in $pdbCount distinct PDB Chains compared with $tentativeTPRCount Tentative TPRs. $newAssociations new associations made\n";
+print "$tprCount TPRs in $pdbCount distinct PDB Chains compared with $tentativeTPRCount Tentative TPRs. $newAssociations new associations made.\n";
 
 sub printTPRs(){
 foreach my $pdbChain (sort keys %TPRs) {
