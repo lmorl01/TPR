@@ -1,9 +1,9 @@
 #####################################################################################
-# David Morley, MSc Bioinformatics 2015-2017 
+# David Morley, MSc Bioinformatics 2015-2017
 # MSc Project: Origin & Evolution of TPR Domains
 # Author: David Morley
 # Package Name: TPRTools.pm
-# Version: 0002 (14/05/17 11:43)
+# Version: 0003 (11/06/17 12:28)
 #
 # Purpose: 	A package of tools developed for use in the Origin & Evolution of 
 #			TPR Domains project
@@ -24,7 +24,7 @@ use Exporter;
 
 our @ISA = ("Exporter");
 our @EXPORT = ("determinePdbFromPdbText", "getPdbCodeFromFatcatResultFile", 
-	"getStartEndResiduesFromFatcatResultFile", "truncatePDBFile", "extractAlignmentRegion");
+	"getStartEndResiduesFromFatcatResultFile", "truncatePDBFile", "extractAlignmentRegion", "trim");
 
 sub determinePdbFromPdbText($);
 sub extractAlignmentRegion($);
