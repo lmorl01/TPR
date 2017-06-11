@@ -3,7 +3,9 @@
 # MSc Project: Origin & Evolution of TPR Domains
 # Author: David Morley
 # Script Name: associateTentativeTPRs.pl
-# Version: 0001 (10/06/17 18:50)
+# Version: 0002 (11/06/17 16:40)
+# Revision History:
+# Version 002:	Updated to print progress report to STDOUT on conclusion
 #
 # Purpose:  Given an extract of current TPR Regions/TPRs and current Tentative
 #			TPRs, identify any missing associations between tentative TPRs
@@ -27,7 +29,7 @@
 # 3,1elw,A,1,37,72,101,3
 #
 # TentativeTPR details should be extracted with the following SQL:
-# select T.tentativeTPRId, T.pdbCode, T.chain, T.start, T.end, T.regionId, T.startOrdinal, T.repeats from TentativeTPR T order by T.pdbCode, T,regionId, T.startOrdinal into outfile '/d/user6/md003/Project/db/sqlout/2017-06-10_TentativeTPRs.csv' fields terminated by ',' lines terminated by '\n';
+# select T.tentativeTPRId, T.pdbCode, T.chain, T.start, T.end, T.regionId, T.startOrdinal, T.repeats from TentativeTPR T order by T.pdbCode, T.regionId, T.startOrdinal into outfile '/d/user6/md003/Project/db/sqlout/2017-06-10_TentativeTPRs.csv' fields terminated by ',' lines terminated by '\n';
 # Fields:
 # tentativeTPRId, pdbCode, chain, start, end, regionId, startOrdinal, repeats
 # Example Input File:
@@ -75,6 +77,9 @@ open(OUTFILE, ">$out")
 	 or die "Can't create output file $out\n";
 	
 my $tolerance = 15;
+my $tprCount = 0;
+my $tentativeTPRCount = 0;
+my $newAssociations = 0;
 my %TPRs;
 my %tentativeTPRs;
 	
@@ -83,6 +88,7 @@ while (my $line = <INTPR>) {
 	# 0       , 1      , 2    , 3            , 4    , 5           , 6         , 7
 	# regionId, pdbCode, chain, regionOrdinal, tprId, startResidue, endResidue, tprOrdinal
 	my @values = split /,/, trim($line);
+	$tprCount++;
 	my $pdbChain = $values[1].$values[2];
 	#          regionId    start       end         tprOrdinal
 	my @tpr = ($values[0], $values[5], $values[6], $values[7]);
@@ -103,6 +109,7 @@ while (my $line = <INTENT>){
 	# 0             , 1      , 2    , 3    , 4  , 5       , 6           , 7
 	# tentativeTPRId, pdbCode, chain, start, end, regionId, startOrdinal, repeats
 	my @values = split /,/, trim($line);
+	$tentativeTPRCount++;
 	my $pdbChain = $values[1].$values[2];
 	my ($tentativeTPRId, $start, $end, $repeats) = ($values[0], $values[3], $values[4], $values[7]);
 	my ($existingRegionId, $existingStartOrdinal) = ($values[5], $values[6]);
@@ -110,7 +117,7 @@ while (my $line = <INTENT>){
 	if ($existingRegionId eq '\N' && $existingStartOrdinal eq '\N' && $regionId != 0 && $startOrdinal != 0){
 		#New match found, let's update the database
 			print OUTFILE "UPDATE TentativeTPR SET regionId = $regionId, startOrdinal = $startOrdinal WHERE tentativeTPRId = $tentativeTPRId;\n";
-			
+			$newAssociations++;
 	} elsif ($existingRegionId ne '\N' && $existingStartOrdinal ne '\N' && $regionId != 0 && $startOrdinal != 0) {
 		#Existing match found, let's check it's still correct
 		if (!($existingRegionId == $regionId && $existingStartOrdinal == $startOrdinal)){
@@ -154,6 +161,9 @@ sub getKnownTPR($$$$){
 	}
 }
 
+my $pdbCount = scalar keys %TPRs;
+
+print "$tprCount TPRs in $pdbCount distinct PDB Chains compared with $tentativeTPRCount Tentative TPRs. $newAssociations new associations made\n";
 
 sub printTPRs(){
 foreach my $pdbChain (sort keys %TPRs) {
@@ -163,17 +173,3 @@ foreach my $pdbChain (sort keys %TPRs) {
     }
 }	
 }
-
-			#for (my $j = 0; $j < scalar @tprSet[$i]; $j++){
-				#print $tprSet[$i][0][0], " ", $tprSet[$i][0][1], " ", $tprSet[$i][0][2], " ", $tprSet[$i][0][3],"\n";	
-				#print $tprSet[$i][1][0], " ", $tprSet[$i][1][1], " ", $tprSet[$i][1][2], " ", $tprSet[$i][1][3],"\n";
-				#print $tprSet[$i][2][0], " ", $tprSet[$i][2][1], " ", $tprSet[$i][2][2], " ", $tprSet[$i][2][3],"\n";
-				#print scalar $#{$tprSet[0]}, "\n";
-				#print $tprSet[0][0][0], " ", $tprSet[0][0][1], " ", $tprSet[0][0][2], " ", $tprSet[0][0][3],"\n";	
-				#print $tprSet[0][1][0], " ", $tprSet[0][1][1], " ", $tprSet[0][1][2], " ", $tprSet[0][1][3],"\n";
-				#print $tprSet[0][2][0], " ", $tprSet[0][2][1], " ", $tprSet[0][2][2], " ", $tprSet[0][2][3],"\n";
-				#print $tprSet[0][$i][0], " ", $tprSet[0][$i][1], " ", $tprSet[0][$i][2], " ", $tprSet[0][$i][3],"\n";
-				#print $tprSet[0][0], " ", $tprSet[0][1], " ", $tprSet[0][2], " ", $tprSet[0][3],"\n";	
-				#print $tprSet[1][0], " ", $tprSet[1][1], " ", $tprSet[1][2], " ", $tprSet[1][3],"\n";
-				#print $tprSet[2][0], " ", $tprSet[2][1], " ", $tprSet[2][2], " ", $tprSet[2][3],"\n";				
-			#}
