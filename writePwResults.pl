@@ -1,7 +1,9 @@
 #####################################################################################
 # David Morley, MSc Bioinformatics 2015-2017
 # MSc Project: Origin & Evolution of TPR Domains
-# Version: 003, 29/05/2017
+# Version: 004, 25/06/2017
+# Version hostory:
+#	004: Updated to remove experimentId, which has been removed from the table
 #
 # Purpose: Write a script to populate the the following table:
 #
@@ -9,7 +11,6 @@
 # | Field           | Type    | Null | Key | Default | Extra          |
 # +-----------------+---------+------+-----+---------+----------------+
 # | pwId            | int(11) | NO   | PRI | NULL    | auto_increment |
-# | experimentId    | int(11) | YES  | MUL | NULL    |                |
 # | pdb1            | char(4) | YES  | MUL | NULL    |                |
 # | chain1          | char(1) | YES  |     | NULL    |                |
 # | start1          | int(11) | YES  |     | NULL    |                |
@@ -31,13 +32,12 @@
 # +-----------------+---------+------+-----+---------+----------------+
 #
 # Program writes lines of the form:
-# INSERT INTO PWSimilarity (experimentId, pdb1, chain1, start1, end1, pdb2, chain2, start2, end2, score, probability, rmsd, rmsdNorm, 
+# INSERT INTO PWSimilarity (pdb1, chain1, start1, end1, pdb2, chain2, start2, end2, score, probability, rmsd, rmsdNorm, 
 # len1, len2, cov1, cov2, percentId, alignedResidues) 
-# VALUES (INT, CHAR(4), VARCHAR, FLOAT, FLOAT, FLOAT, INT, INT, INT, INT, FLOAT, INT, TEXT)
+# VALUES (CHAR(4), VARCHAR, FLOAT, FLOAT, FLOAT, INT, INT, INT, INT, FLOAT, INT, TEXT)
 #
-# Usage: perl writePwResults.pl experimentId pwResultFile.out populatePWResults.sql
+# Usage: perl writePwResults.pl pwResultFile.out populatePWResults.sql
 # where...
-# experimentId is a foreign key to an entry in the table Experiment 
 # pwResultFile.out is an output file in the standard format produced by the FATCAT -alignPairs program
 # populatePWResults.sql is the output file
 #####################################################################################
@@ -47,16 +47,15 @@ use warnings;
 
 #use TPRTools;
 
-sub writeResults($$$$$$$$$$$$$$$$$$$);
+sub writeResults($$$$$$$$$$$$$$$$$$);
 
-if (!(scalar @ARGV == 3 && $ARGV[0] =~ /^\d+$/)){
-	print "Usage: perl writePwResults.pl experimentId pwResultFile.out populatePWResults.sql\n";
+if (!(scalar @ARGV == 2)){
+	print "Usage: perl writePwResults.pl pwResultFile.out populatePWResults.sql\n";
 	exit;
 }
 
- my $experimentId = $ARGV[0];
- my $in = $ARGV[1];
- my $out = $ARGV[2];
+ my $in = $ARGV[0];
+ my $out = $ARGV[1];
  open(OUTFILE, ">$out")
 	 or die "Can't create output file $out\n";
 open(INFILE, $in)
@@ -101,7 +100,7 @@ while (my $line = <INFILE>) {
 		$maxAlignedResidues = $alignedResidues; 	#Out of interest
 	}
 	my $normRmsd = ($alignedResidues == 0) ? 1000 : $results[4]/sqrt($alignedResidues); #avoid division by zero
-	writeResults($experimentId, $pdb1, $chain1, $start1, $end1, $pdb2, $chain2, $start2, $end2, $results[2], $results[3], $results[4], $normRmsd, $results[5], $results[6], $results[7], $results[8], $results[9], $alignedResidues);
+	writeResults($pdb1, $chain1, $start1, $end1, $pdb2, $chain2, $start2, $end2, $results[2], $results[3], $results[4], $normRmsd, $results[5], $results[6], $results[7], $results[8], $results[9], $alignedResidues);
 	$processed++;
 	
  }  
@@ -114,8 +113,8 @@ while (my $line = <INFILE>) {
  print "Maximum number of aligned residues: ", $maxAlignedResidues, "\n"; #Out of interest
  print $processed, " pairwise results processed. Use the script $out to import these into the database.\n";
  
- sub writeResults($$$$$$$$$$$$$$$$$$$){
-	print OUTFILE "INSERT INTO PWSimilarity (experimentId, pdb1, chain1, start1, end1, pdb2, chain2, start2, end2, score, probability, rmsd, rmsdNorm, len1, len2, cov1, cov2, percentId, alignedResidues) VALUES ($_[0], \"$_[1]\", \"$_[2]\", $_[3], $_[4], \"$_[5]\", \"$_[6]\", $_[7], $_[8], $_[9], $_[10], $_[11], $_[12], $_[13], $_[14], $_[15], $_[16], $_[17], $_[18]);\n";
+ sub writeResults($$$$$$$$$$$$$$$$$$){
+	print OUTFILE "INSERT INTO PWSimilarity (pdb1, chain1, start1, end1, pdb2, chain2, start2, end2, score, probability, rmsd, rmsdNorm, len1, len2, cov1, cov2, percentId, alignedResidues) VALUES (\"$_[0]\", \"$_[1]\", $_[2], $_[3], \"$_[4]\", \"$_[5]\", $_[6], $_[7], $_[8], $_[9], $_[10], $_[11], $_[12], $_[13], $_[14], $_[15], $_[16], $_[17]);\n";
  }
 
 
