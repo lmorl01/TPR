@@ -48,7 +48,7 @@ use warnings;
 use TPRTools;
 
 sub writePdbEntry($$);
-sub writeResults($$$$$$$$$$$$$);
+sub writeResults($$$$$$$$$$$$$$);
 
 if (!(scalar @ARGV == 3 && $ARGV[0] =~ /^\d+$/)){
 	print "Usage: perl writePopulateResults.pl experimentId results_CUSTOM.out populateResults.sql\n";
@@ -90,6 +90,6 @@ while (my $line = <INFILE>) {
 	print OUTFILE "INSERT IGNORE INTO PDBEntry (pdbCode) VALUES (\"$_[0]\");\n";
  }
  
- sub writeResults($$$$$$$$$$$$$){
+ sub writeResults($$$$$$$$$$$$$$){
 	print OUTFILE "INSERT INTO Results (experimentId, resultPdb, resultPdbText, score, probability, rmsd, norm_rmsd, len1, len2, cov1, cov2, percentId, alignedResidues, targetDescription) VALUES ($_[0], \"$_[1]\", \"$_[2]\", $_[3], $_[4], $_[5], $_[6], $_[7], $_[8], $_[9], $_[10], $_[11], $_[12], \"$_[13]\");\n";
  }
