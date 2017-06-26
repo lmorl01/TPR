@@ -1,8 +1,8 @@
 # David Morley, MSc Bioinformatics 2015-2017
 # MSc Project: Origin & Evolution of TPR Domains
-# Version: 001, 30/01/2017
+# Version: 002, 25/06/2017
 #
-# Purpose: Write a script to populate the the following table:
+# Purpose: Write a script to populate the following table:
 #
 # +--------------+---------+------+-----+---------+----------------+
 # | Field        | Type    | Null | Key | Default | Extra          |
@@ -17,7 +17,7 @@
 # Program writes lines of the form:
 # INSERT INTO TPR (regionId, startResidue, endResidue, tprOrdinal) VALUES (w, x, y, z)
 #
-# Usage: perl writePopulatePDBEntrySQL.pl input.csv
+# Usage: perl writeTPR.pl input.csv
 # where input.csv is a comma-separated export from Excel of TPR details containing regionId codes that
 # already exist in the table TPRRegion
 

@@ -2,9 +2,11 @@
 # David Morley, MSc Bioinformatics 2015-2017
 # MSc Project: Origin & Evolution of TPR Domains
 # Version: 004, 03/06/2017
+# Version: 005, 26/06/2017
 #
 # Version History:
 # 004: Addition of norm_RMSD column to the database
+# 005: Handling of illegal division by zero when calculating norm_rmsd
 #
 # Purpose: Write a script to populate the the following table:
 #
@@ -46,7 +48,7 @@ use warnings;
 use TPRTools;
 
 sub writePdbEntry($$);
-sub writeResults($$$$$$$$$$$$$$);
+sub writeResults($$$$$$$$$$$$$);
 
 if (!(scalar @ARGV == 3 && $ARGV[0] =~ /^\d+$/)){
 	print "Usage: perl writePopulateResults.pl experimentId results_CUSTOM.out populateResults.sql\n";
@@ -76,8 +78,8 @@ else {
 while (my $line = <INFILE>) {
 	my @results = split /\t/, $line;	
 	my $targetPdb = determinePdbFromPdbText($results[1]);
-	my $alignedResidues = int (($results[5]/100)*$results[7]); 	# (len1/100)*cov1
-	my $norm_rmsd = $results[4]/sqrt($alignedResidues);			# normalised RMSD = RMSD/sqrt(n)
+	my $alignedResidues = int (($results[5]/100)*$results[7]); 										# (len1/100)*cov1
+	my $norm_rmsd = $alignedResidues == 0 ? "NULL" : $results[4]/sqrt($alignedResidues);			# normalised RMSD = RMSD/sqrt(n)
 	writePdbEntry($targetPdb, $results[10]);
 	writeResults($experimentId, $targetPdb, $results[1], $results[2], $results[3], $results[4], $norm_rmsd, $results[5], $results[6], $results[7], $results[8], $results[9], $alignedResidues, $results[10]);
  }  
