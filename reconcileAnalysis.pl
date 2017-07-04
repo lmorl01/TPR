@@ -46,16 +46,19 @@ use DBI;
 
 #use TPRTools;
 
-if (!(scalar @ARGV == 2)){
+if (!(scalar @ARGV == 1)){
     die "Usage: perl reconcileAnalysis.pl pdbCode dbpw\n";
 }
-my $pdb = $ARGV[0];
-my $dbp = $ARGV[1];
+#my $pdb = $ARGV[0];
+my $dbp = $ARGV[0];
 my $dbname = "md003";
 my $dbserver = "hope";
 my $datasource = "dbi:mysql:database=$dbname;host=$dbserver";
 my @results;
 my $i = 0;
+
+print "Enter a PDB code:";
+$pdb = <>;
 
 my $dbh = DBI->connect($datasource, $dbname, $dbp);
 
