@@ -49,7 +49,7 @@ use DBI;
 if (!(scalar @ARGV == 2)){
     die "Usage: perl reconcileAnalysis.pl pdbCode dbpw\n";
 }
-my $pdb = $ARG[0];
+my $pdb = $ARGV[0];
 my $dbp = $ARGV[1];
 my $dbname = "md003";
 my $dbserver = "hope";
@@ -59,15 +59,14 @@ my $i = 0;
 
 my $dbh = DBI->connect($datasource, $dbname, $dbp);
 
-my $sql = "select * from TPR T left join TPRRegion R on T.regionId = R.regionId where R.pdbCode = '$pdb';"
+my $sql = "select * from TPR T left join TPRRegion R on T.regionId = R.regionId where R.pdbCode = '$pdb';";
 my $sth = $dbh->prepare($sql);
 if ($sth->execute){
 	while(@results = $sth->fetchrow_array){
-		print @results, "\n";
+		for (my $i = 0; $i < @results; $i++){
+		print defined($results[$i])?$results[$i]:"NULL", " ";
+		}
+	print "\n";	
 	}
 }
-
-
-
-
 
