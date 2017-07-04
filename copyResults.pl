@@ -1,9 +1,12 @@
 ###################################################################################
-# David Morley, MSc Bioinformatics 2015-2017  
+# David Morley, MSc Bioinformatics 2015-2017
 # MSc Project: Origian & Evolution of TPR Domains
 # Author: David Morley
 # Script Name: copyResults.pl
-# Version: 0.001 (19/03/17 11:04)
+# Version: 0.002 (04/04/17 14:53)
+# Version History:
+#	0.002 	Updated to handle new format for extracting top results from the DB
+#			Also added checking that directory exists
 #
 # Purpose: To read a set of substrings from an input file passed as a parameter
 # and to copy all files that contain those substrings from the local directory to
@@ -23,6 +26,7 @@
 
 use strict;
 use warnings;
+use TPRTools;
 
 if (!(scalar @ARGV == 2)){
     print "Usage: perl copyResults.pl in.file out.dir";
@@ -37,13 +41,16 @@ print "Copy to location: ", $out, "\n";
 
 open (INFILE, $in)
     or die "Can't open file $in\n";
-#Check here that $out is a dir
+if (!(-e $out and -d $out)){
+	die "Unable to find directory $out\n";
+}
 
 my $count = 0;
 while (my $line = <INFILE>){
-    chomp($line);
-    print "Processing ", $line, "\n";
-    system("cp *$line* $out");
+    my @values = split /,/, trim($line);
+	my $pdbText = $values[3];
+    print "Processing ", $pdbText, "\n";
+    system("cp *$pdbText* $out");
     $count++;
 }
 
