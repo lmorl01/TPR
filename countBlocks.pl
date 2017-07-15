@@ -42,6 +42,7 @@ open(OUTFILE, ">$out")
 foreach (my $i = 0; $i < @files; $i++){
 	if ($files[$i] =~ /.gz/){
 		my $path = $resDir."\/".$files[$i];
+		print "Unzipping $path\n";
 		system("gunzip $path");
 		$path = substr($path,0,length($files[$i])-3);	#Because .gz has been truncated from the end
 		if (open(INFILE, $path)){
@@ -58,6 +59,7 @@ foreach (my $i = 0; $i < @files; $i++){
 			print OUTFILE "UPDATE Results SET blocks = $blockCount WHERE experimentId = $experimentId and resultPdbText = \"$resultPdbText\";\n";					
 			}
 		}
+		print "Zipping $path\n";
 		system("gzip $path");		
 	}
 }
