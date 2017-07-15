@@ -44,7 +44,7 @@ foreach (my $i = 0; $i < @files; $i++){
 		my $path = $resDir."\/".$files[$i];
 		print "Unzipping $path\n";
 		system("gunzip $path");
-		$path = substr($path,0,length($files[$i])-3);	#Because .gz has been truncated from the end
+		$path = substr($path,0,length($path)-3);	#Because .gz has been truncated from the end
 		if (open(INFILE, $path)){
 			my $header = <INFILE>;
 			my $resultPdbText = "";				
