@@ -107,7 +107,7 @@ while (my $line = <INFILE>) {
 	system("gunzip $path");
 	$path = substr($path,0,length($path)-3);	#Because .gz has been truncated from the end
 	if (open(IN, $path)){
-		while (my $line = <INFILE>){
+		while (my $line = <IN>){
 		if ($line =~ /<block blockNr="(\d+)"/){
 			$blockCount++;
 			}
