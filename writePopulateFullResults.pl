@@ -106,14 +106,14 @@ while (my $line = <INFILE>) {
 	print "Unzipping $path\n";
 	system("gunzip $path");
 	$path = substr($path,0,length($path)-3);	#Because .gz has been truncated from the end
-	if (open(INFILE, $path)){
+	if (open(IN, $path)){
 		while (my $line = <INFILE>){
 		if ($line =~ /<block blockNr="(\d+)"/){
 			$blockCount++;
 			}
 		}				
 	}	
-	close INFILE;	
+	close IN;	
 	print "Zipping $path\n";
 	system("gzip $path");
 	return $blockCount;
