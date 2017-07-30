@@ -56,8 +56,9 @@ if (!(scalar @ARGV == 4 && $ARGV[0] =~ /^\d+$/)){
 
  my $experimentId = $ARGV[0];
  my $in = $ARGV[1];
- my $out = $ARGV[2];
- my $resDir = $ARGV[3];
+ my $resDir = $ARGV[2];
+ my $out = $ARGV[3];
+ 
  
  
  open(OUTFILE, ">$out")
