@@ -46,8 +46,8 @@ use warnings;
 use TPRTools;
 
 sub writePdbEntry($$);
-sub writeResults($$$$$$$$$$$$$$);
-sub getBlocks();
+sub writeResults($$$$$$$$$$$$$$$);
+sub getBlocks($);
 
 if (!(scalar @ARGV == 4 && $ARGV[0] =~ /^\d+$/)){
 	print "Usage: perl writePopulateResults.pl experimentId results_CUSTOM.out resultsDir populateResults.sql\n";
@@ -83,7 +83,7 @@ while (my $line = <INFILE>) {
 	my $targetPdb = determinePdbFromPdbText($pdbText);
 	my $alignedResidues = int (($results[5]/100)*$results[7]); 										# (len1/100)*cov1
 	my $norm_rmsd = $alignedResidues == 0 ? "NULL" : $results[4]/sqrt($alignedResidues);			# normalised RMSD = RMSD/sqrt(n)
-	my $blocks = getBlocks($pdbText)
+	my $blocks = getBlocks($pdbText);
 	writePdbEntry($targetPdb, $results[10]);
 	writeResults($experimentId, $targetPdb, $results[1], $results[2], $results[3], $results[4], $norm_rmsd, $results[5], $results[6], $results[7], $results[8], $results[9], $alignedResidues, $results[10], $blocks);
  }  
