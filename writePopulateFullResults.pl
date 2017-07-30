@@ -91,7 +91,7 @@ while (my $line = <INFILE>) {
  }  
  close(INFILE) or die "Unable to close input file";
  close(OUTFILE) or die "Unable to close output file";
- $resDirZipPath = substr($resDirZipPath,0,length($path)-3) #Because .gz has been truncated from the end
+ $resDirZipPath = substr($resDirZipPath,0,length($resDirZipPath)-3) #Because .gz has been truncated from the end
  system("gzip $resDirZipPath");
 
  sub writePdbEntry($$){
