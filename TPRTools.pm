@@ -23,15 +23,32 @@ use warnings;
 use Exporter;
 
 our @ISA = ("Exporter");
-our @EXPORT = ("determinePdbFromPdbText", "getPdbCodeFromFatcatResultFile", 
+our @EXPORT = ("determineChainFromPdbText", "determinePdbFromPdbText", 
+	"getChainFromFatcatResultFile", "getPdbCodeFromFatcatResultFile", 
 	"getStartEndResiduesFromFatcatResultFile", "truncatePDBFile", "extractAlignmentRegion", "trim");
 
+#sub contains($$);
+sub determineChainFromPdbText($);
 sub determinePdbFromPdbText($);
 sub extractAlignmentRegion($);
+sub getChainFromFatcatResultFile($);
 sub getPdbCodeFromFatcatResultFile($);
 sub getStartEndResiduesFromFatcatResultFile($);
 sub trim($);
 sub truncatePDBFile($$$$$);
+
+sub determineChainFromPdbText($){
+
+ if ($_[0] =~ m/^d[A-Za-z0-9]{4}([A-Za-z0-9]+)_?$/){
+	return uc substr($1,0,1);
+ } elsif ($_[0] =~ m/^PDP:([A-Za-z0-9]+)_?$/){
+	return uc substr($1,4,1);
+ } elsif ($_[0] =~ m/^[A-Z0-9]{4}.([A-Za-z0-9]){1}$/){
+	return uc $1;
+ } else {
+	return "";
+ }
+}
 
 #####################################################################################
 # Purpose: 	To extract the PDB code from a 'PDB Text' string generated from FATCAT 
@@ -58,6 +75,7 @@ sub truncatePDBFile($$$$$);
  } elsif ($_[0] =~ m/^([A-Z0-9]{4}).[A-Za-z0-9]{1}$/){
 	return lc $1;
  } else {
+	print STDERR "Unexpected pdbText Format: $_[0]\n";
 	return "";
  }
 }
@@ -81,6 +99,25 @@ sub extractAlignmentRegion($){
 	my ($start, $end, $chainId) = getStartEndResiduesFromFatcatResultFile($_[0]);
 	return $pdbCode.":(".$chainId.":".$start."-".$end.")";
 }
+
+sub getChainFromFatcatResultFile($){
+	my $path = $_[0];
+	my $chain = "";
+	if ($path =~ /.xml/){
+		if (open(INFILE, $path)){
+			my $header = <INFILE>;
+			if ($header =~ /name2=\"([A-Za-z0-9:.]+_?)\"/){
+				$chain = determineChainFromPdbText($1);
+			}
+			close(INFILE);		
+		}
+		else {
+			print STDERR "Unable to open file: ", $path, "\n";
+		}
+	}
+	return $chain;
+}
+
 
 #####################################################################################
 # Purpose: 	To extract the PDB code from a FATCAT DB Search result file in the format
