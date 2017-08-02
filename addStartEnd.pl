@@ -41,6 +41,7 @@ if (!(scalar @ARGV == 2)){
  my ($in, $out) = ($ARGV[0], $ARGV[1]);
  my $root = "\/d\/mw6\/u\/md003\/results\/";
  my ($prefix, $suffix) = ("\/dbsearch_CUSTOM_", ".xml.gz")
+ my $count = 0;
  
  open(INFILE, $in)
       or die "Can't open file $in\n"; 
@@ -48,6 +49,10 @@ open(OUTFILE, ">$out")
 	 or die "Can't create output file $out\n";	
 	 
 while (my $line = <INFILE>) {
+	$count++;
+	if ($count%100 == 0){
+		print "$count records processed\n";
+	}
 	my @results = split /,/, $line;
 	my $resultId = $results[0];
 	my $pdbText = $results[1];
