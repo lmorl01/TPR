@@ -46,7 +46,7 @@ use warnings;
 use TPRTools;
 
 sub writePdbEntry($$);
-sub writeResults($$$$$$$$$$$$$$$);
+sub writeResults($$$$$$$$$$$$$$$$);
 sub getBlocks($);
 
 if (!(scalar @ARGV == 4 && $ARGV[0] =~ /^\d+$/)){
@@ -86,8 +86,9 @@ while (my $line = <INFILE>) {
 	my $alignedResidues = int (($results[5]/100)*$results[7]); 										# (len1/100)*cov1
 	my $norm_rmsd = $alignedResidues == 0 ? "NULL" : $results[4]/sqrt($alignedResidues);			# normalised RMSD = RMSD/sqrt(n)
 	my $blocks = getBlocks($pdbText);
+	my $chain = determineChainFromPdbText($pdbText);
 	writePdbEntry($targetPdb, $results[10]);
-	writeResults($experimentId, $targetPdb, $results[1], $results[2], $results[3], $results[4], $norm_rmsd, $results[5], $results[6], $results[7], $results[8], $results[9], $alignedResidues, $results[10], $blocks);
+	writeResults($experimentId, $targetPdb, $results[1], $results[2], $results[3], $results[4], $norm_rmsd, $results[5], $results[6], $results[7], $results[8], $results[9], $alignedResidues, $results[10], $blocks, $chain);
  }  
  close(INFILE) or die "Unable to close input file";
  close(OUTFILE) or die "Unable to close output file";
@@ -98,8 +99,8 @@ while (my $line = <INFILE>) {
 	print OUTFILE "INSERT IGNORE INTO PDBEntry (pdbCode) VALUES (\"$_[0]\");\n";
  }
  
- sub writeResults($$$$$$$$$$$$$$$){
-	print OUTFILE "INSERT INTO Results (experimentId, resultPdb, resultPdbText, score, probability, rmsd, norm_rmsd, len1, len2, cov1, cov2, percentId, alignedResidues, targetDescription, blocks) VALUES ($_[0], \"$_[1]\", \"$_[2]\", $_[3], $_[4], $_[5], $_[6], $_[7], $_[8], $_[9], $_[10], $_[11], $_[12], \"$_[13]\", $_[14]);\n";
+ sub writeResults($$$$$$$$$$$$$$$$){
+	print OUTFILE "INSERT INTO Results (experimentId, resultPdb, resultPdbText, score, probability, rmsd, norm_rmsd, len1, len2, cov1, cov2, percentId, alignedResidues, targetDescription, blocks) VALUES ($_[0], \"$_[1]\", \"$_[2]\", $_[3], $_[4], $_[5], $_[6], $_[7], $_[8], $_[9], $_[10], $_[11], $_[12], \"$_[13]\", $_[14], \'$_[15]\');\n";
  }
  
  sub getBlocks($){
