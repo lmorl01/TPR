@@ -40,7 +40,7 @@ if (!(scalar @ARGV == 2)){
 
  my ($in, $out) = ($ARGV[0], $ARGV[1]);
  my $root = "\/d\/mw6\/u\/md003\/results\/";
- my ($prefix, $suffix) = ("\/dbsearch_CUSTOM_", ".xml.gz")
+ my ($prefix, $suffix) = ("\/dbsearch_CUSTOM_", ".xml.gz");
  my $count = 0;
  
  open(INFILE, $in)
@@ -58,9 +58,11 @@ while (my $line = <INFILE>) {
 	my $pdbText = $results[1];
 	my $resLoc = $results[2];
 	my $alignFile = $root.$resLoc.$prefix.$pdbText.$suffix;
+	print "Unzipping $alignFile\n";
 	system("gunzip $alignFile");
-	$alignFile = substr($alignFile,0,length($alignFile)-3) #Because .gz has been truncated from the end
+	$alignFile = substr($alignFile,0,length($alignFile)-3); #Because .gz has been truncated from the end
 	my ($start, $end, $chainId) = getStartEndResiduesFromFatcatResultFile($alignFile);
 	print OUTFILE "UPDATE Results SET start = $start, end = $end WHERE resultId = $resultId;\n";
+	print "Zipping $alignFile\n";
 	system("gzip $alignFile");
 }	 
