@@ -40,7 +40,7 @@ if (!(scalar @ARGV == 2)){
 
  my ($in, $out) = ($ARGV[0], $ARGV[1]);
  my $root = "\/d\/mw6\/u\/md003\/results\/";
- my ($prefix, $suffix) = ("\/dbsearch_CUSTOM_", ".xml.gz");
+ my ($prefix, $suffix) = ("dbsearch_CUSTOM_", ".xml.gz");
  my $count = 0;
  
  open(INFILE, $in)
