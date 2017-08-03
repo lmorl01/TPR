@@ -56,7 +56,7 @@ while (my $line = <INFILE>) {
 	my @results = split /,/, $line;
 	my $resultId = $results[0];
 	my $pdbText = $results[1];
-	my $resLoc = $results[2];
+	my $resLoc = trim($results[2]);
 	my $alignFile = $root.$resLoc.$prefix.$pdbText.$suffix;
 	print "Unzipping $alignFile\n";
 	system("gunzip $alignFile");
