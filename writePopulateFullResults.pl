@@ -1,7 +1,8 @@
 #####################################################################################
 # David Morley, MSc Bioinformatics 2015-2017
 # MSc Project: Origin & Evolution of TPR Domains
-# Version: 001, 30/07/2017
+# Version: 	001, 30/07/2017
+#			002, 03/08/2017 Add chain to table
 #
 # Purpose: 	Combine WritePopulateResults.pl and countBlocks.pl to combine two
 # 			steps on the analysis pipeline
@@ -15,7 +16,11 @@
 # | experimentId      | int(11)     | YES  | MUL | NULL    |                |
 # | resultPdb         | char(4)     | YES  | MUL | NULL    |                |
 # | resultPdbText     | varchar(50) | YES  |     | NULL    |                |
+# | chain             | char(1)     | YES  |     | NULL    |                |
+# | start             | int(11)     | YES  |     | NULL    |                |
+# | end               | int(11)     | YES  |     | NULL    |                |
 # | score             | float       | YES  |     | NULL    |                |
+# | norm_score        | float       | YES  |     | NULL    |                |
 # | probability       | float       | YES  |     | NULL    |                |
 # | rmsd              | float       | YES  |     | NULL    |                |
 # | norm_rmsd         | float       | YES  |     | NULL    |                |
@@ -24,14 +29,16 @@
 # | cov1              | int(11)     | YES  |     | NULL    |                |
 # | cov2              | int(11)     | YES  |     | NULL    |                |
 # | percentId         | float       | YES  |     | NULL    |                |
+# | blocks            | int(11)     | YES  |     | NULL    |                |
 # | alignedResidues   | int(11)     | YES  |     | NULL    |                |
 # | targetDescription | text        | YES  |     | NULL    |                |
 # +-------------------+-------------+------+-----+---------+----------------+
 #
 # Program writes lines of the form:
 # INSERT IGNORE INTO PDBEntry (pdbCode) VALUES (CHAR(4));
-# INSERT INTO Results (experimentId, resultPdb, resultPdbText, score, probability, rmsd, norm_rmsd, len1, len2, cov1, cov2, percentId, alignedResidues, 
-# targetDescription) VALUES (INT, CHAR(4), VARCHAR, FLOAT, FLOAT, FLOAT, FLOAT, INT, INT, INT, INT, FLOAT, INT, TEXT)
+# INSERT INTO Results (experimentId, resultPdb, resultPdbText, score, probability, rmsd, norm_rmsd, 
+# len1, len2, cov1, cov2, percentId, alignedResidues, targetDescription, blocks, chain)
+# VALUES (INT, CHAR(4), VARCHAR, FLOAT, FLOAT, FLOAT, FLOAT, INT, INT, INT, INT, FLOAT, INT, TEXT, INT, CHAR(1))
 #
 # Usage: perl writePopulateResults.pl experimentId results_CUSTOM.out resultsDir populateResults.sql
 # where...
@@ -100,7 +107,7 @@ while (my $line = <INFILE>) {
  }
  
  sub writeResults($$$$$$$$$$$$$$$$){
-	print OUTFILE "INSERT INTO Results (experimentId, resultPdb, resultPdbText, score, probability, rmsd, norm_rmsd, len1, len2, cov1, cov2, percentId, alignedResidues, targetDescription, blocks) VALUES ($_[0], \"$_[1]\", \"$_[2]\", $_[3], $_[4], $_[5], $_[6], $_[7], $_[8], $_[9], $_[10], $_[11], $_[12], \"$_[13]\", $_[14], \'$_[15]\');\n";
+	print OUTFILE "INSERT INTO Results (experimentId, resultPdb, resultPdbText, score, probability, rmsd, norm_rmsd, len1, len2, cov1, cov2, percentId, alignedResidues, targetDescription, blocks, chain) VALUES ($_[0], \"$_[1]\", \"$_[2]\", $_[3], $_[4], $_[5], $_[6], $_[7], $_[8], $_[9], $_[10], $_[11], $_[12], \"$_[13]\", $_[14], \'$_[15]\');\n";
  }
  
  sub getBlocks($){
