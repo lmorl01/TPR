@@ -66,8 +66,8 @@ if (!(scalar @ARGV == 4 && $ARGV[0] =~ /^\d+$/)){
  my $resDir = $ARGV[2];
  my $out = $ARGV[3];
  
- my $resDirZipPath = $resDir."\/"."dbsearch_CUSTOM_*.xml.gz";
- system("gunzip $resDirZipPath");
+ #my $resDirZipPath = $resDir."\/"."dbsearch_CUSTOM_*.xml.gz";
+ #system("gunzip $resDirZipPath");
  
 open(OUTFILE, ">$out")
 	 or die "Can't create output file $out\n";
@@ -99,8 +99,8 @@ while (my $line = <INFILE>) {
  }  
  close(INFILE) or die "Unable to close input file";
  close(OUTFILE) or die "Unable to close output file";
- $resDirZipPath = substr($resDirZipPath,0,length($resDirZipPath)-3); #Because .gz has been truncated from the end
- system("gzip $resDirZipPath");
+ #$resDirZipPath = substr($resDirZipPath,0,length($resDirZipPath)-3); #Because .gz has been truncated from the end
+ #system("gzip $resDirZipPath");
 
  sub writePdbEntry($$){
 	print OUTFILE "INSERT IGNORE INTO PDBEntry (pdbCode) VALUES (\"$_[0]\");\n";
@@ -113,11 +113,11 @@ while (my $line = <INFILE>) {
  sub getBlocks($){
 	my $pdbText = $_[0];
 	my $blockCount = 0;
-	#my $path = $resDir."\/"."dbsearch_CUSTOM_".$pdbText.".xml.gz";
-	my $path = $resDir."\/"."dbsearch_CUSTOM_".$pdbText.".xml";
-	#print "Unzipping $path\n";
-	#system("gunzip $path");
-	#$path = substr($path,0,length($path)-3);	#Because .gz has been truncated from the end
+	my $path = $resDir."\/"."dbsearch_CUSTOM_".$pdbText.".xml.gz";
+	#my $path = $resDir."\/"."dbsearch_CUSTOM_".$pdbText.".xml";
+	print "Unzipping $path\n";
+	system("gunzip $path");
+	$path = substr($path,0,length($path)-3);	#Because .gz has been truncated from the end
 	if (open(IN, $path)){
 		while (my $line = <IN>){
 		if ($line =~ /<block blockNr="(\d+)"/){
@@ -126,7 +126,7 @@ while (my $line = <INFILE>) {
 		}				
 	}	
 	close IN;	
-	#print "Zipping $path\n";
-	#system("gzip $path");
+	print "Zipping $path\n";
+	system("gzip $path");
 	return $blockCount;
  }
