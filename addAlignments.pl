@@ -32,6 +32,8 @@ use warnings;
 
 use TPRTools;
 
+sub processAlignments($$);
+
 if (!(scalar @ARGV == 2)){
 	print "Usage: perl input.csv output.sql\n";
 	exit;
@@ -49,9 +51,6 @@ open(OUTFILE, ">$out")
 	 
 while (my $line = <INFILE>) {
 	$count++;
-	if ($count%100 == 0){
-		print "$count records processed\n";
-	}
 	my @results = split /,/, $line;
 	my $resultId = $results[0];
 	my $pdbText = $results[1];
@@ -63,6 +62,9 @@ while (my $line = <INFILE>) {
 	processAlignments($resultId, $alignFile);
 	print "Zipping $alignFile\n";
 	system("gzip $alignFile");
+	if ($count%100 == 0){
+		print "$count records processed\n";
+	}
 }	 
 
 sub processAlignments($$){
@@ -71,7 +73,7 @@ sub processAlignments($$){
 	if (open(IN, $path)){
 		while (my $line = <IN>){
 			if ($line =~ /pdbres1="(\d+)"\schain1="([A-Za-z0-9])"\spdbres2="(\d+)"\schain2="([A-Za-z0-9])"/){
-				print OUTFILE "INSERT INTO Alignments (resultId, queryResidueNo, resultResidueNo, queryResidue, resultResidue) VALUES ($resultId, $1,\'$2\',$3,\'$4\')\n";		
+				print OUTFILE "INSERT INTO Alignment (resultId, queryResidueNo, resultResidueNo) VALUES ($resultId,$1,$3);\n";		
 			}
 		}
 	}
