@@ -15,7 +15,8 @@ VALUES (13, "2017-01-31" , "1ihg", 7, 1, "workingPDB", "1ihg/1ihg_TPR_1-3", "1ih
 -- Select significant results for results with one block
 -- Fields are those required for addAlignments.pl
 
-SELECT R.resultId, R.resultPdbText, E.resultsLocation 
+SELECT 
+R.resultId, R.resultPdbText, E.resultsLocation 
 FROM 
 Results R, Experiment E 
 WHERE 
@@ -31,7 +32,8 @@ INTO OUTFILE '/d/user6/md003/Project/db/sqlout/2017-08-02_Sig_1Blk.csv' fields t
 -- Select significant results for results with 1 < blocks <= n where n = number of TPRs in query
 -- Fields are those required for addAlignments.pl
 
-SELECT R.resultId, R.resultPdbText, E.resultsLocation
+SELECT 
+R.resultId, R.resultPdbText, E.resultsLocation
 FROM 
 Results R, Experiment E, ParameterSet P 
 WHERE 
@@ -47,7 +49,8 @@ INTO OUTFILE '/d/user6/md003/Project/db/sqlout/2017-08-02_Sig_1Blk.csv' fields t
 -- Select significant results for results with blocks <= n where n = number of TPRs in query
 -- Fields are those required for addAlignments.pl
 
-SELECT R.resultId, R.resultPdbText, E.resultsLocation
+SELECT 
+R.resultId, R.resultPdbText, E.resultsLocation
 FROM 
 Results R, Experiment E, ParameterSet P 
 WHERE 
@@ -63,7 +66,8 @@ INTO OUTFILE '/d/user6/md003/Project/db/sqlout/2017-08-02_Sig_1Blk.csv' fields t
 -- Select Alignments that are missing amino acids
 -- Fields are those required for getAminoAcids.pl
 
-SELECT A.alignId, E.queryPdb, TPRR.chain, A.queryResisueNo, R.resultPdb, R.chain, A.resultResidueNo
+SELECT 
+A.alignId, E.queryPdb, TPRR.chain, A.queryResisueNo, R.resultPdb, R.chain, A.resultResidueNo
 FROM
 Alignment A, Results R, Experiment E, TPRRegion TPRR
 WHERE
@@ -74,7 +78,8 @@ INTO OUTFILE '/d/user6/md003/Project/db/sqlout/2017-08-06_aa.csv' fields termina
 
 -- Select TPR start residue numbers for Tentative TPRs based on start residue numbers in the experiment query
 
-SELECT R.resultId, E.queryPdb, R.resultPdb, TPR.TPROrdinal, TPR.startResidue AS 'StartResidueQuery', MIN(A.resultResidueNo) AS 'StartResidueResult'
+SELECT 
+R.resultId, E.queryPdb, R.resultPdb, TPR.TPROrdinal, TPR.startResidue AS 'StartResidueQuery', MIN(A.resultResidueNo) AS 'StartResidueResult'
 FROM 
 Results R, Experiment E, ParameterSet P, TPR, Alignment A 
 WHERE
@@ -91,7 +96,8 @@ E.queryPdb, R.resultPdb, TPR.TPROrdinal;
 
 -- Select TPR end residue numbers for Tentative TPRs based on end residue numbers in the experiment query
 
-SELECT R.resultId, E.queryPdb, R.resultPdb, TPR.TPROrdinal, TPR.endResidue AS 'EndResidueQuery', MAX(A.resultResidueNo) AS 'EndResidueResult'
+SELECT 
+R.resultId, E.queryPdb, R.resultPdb, TPR.TPROrdinal, TPR.endResidue AS 'EndResidueQuery', MAX(A.resultResidueNo) AS 'EndResidueResult'
 FROM 
 Results R, Experiment E, ParameterSet P, TPR, Alignment A 
 WHERE
@@ -108,7 +114,8 @@ E.queryPdb, R.resultPdb, TPR.TPROrdinal;
 -- Select start and end TPR residue numbers for Tentative TPRs based on start and end residue numbers in the experiment query
 -- Fields are those required for extractTPRs.pl
 
-SELECT R.resultId, E.queryPdb, TPRR.chain AS 'QueryChain', R.resultPdb, R.chain AS 'ResultChain', TPR.TPROrdinal, TPR.startResidue AS 'StartResidueQuery', TPR.endResidue AS 'EndResidueQuery', MIN(A.resultResidueNo) AS 'StartResidueResult', MAX(A.resultResidueNo) AS 'EndResidueResult'
+SELECT 
+R.resultId, E.queryPdb, TPRR.chain AS 'QueryChain', R.resultPdb, R.chain AS 'ResultChain', TPR.TPROrdinal, TPR.startResidue AS 'StartResidueQuery', TPR.endResidue AS 'EndResidueQuery', MIN(A.resultResidueNo) AS 'StartResidueResult', MAX(A.resultResidueNo) AS 'EndResidueResult'
 FROM 
 Results R, Experiment E, ParameterSet P, TPRRegion TPRR, TPR, Alignment A 
 WHERE
@@ -122,5 +129,43 @@ R.resultId, E.queryPdb, TPRR.chain, R.resultPdb, R.chain, TPR.TPROrdinal, TPR.st
 ORDER BY 
 E.queryPdb, R.resultPdb, TPR.TPROrdinal;
 
+-- Select residue alignment frequency data for query PDBs
+-- Fields are those required for residue alignment frequency analysis
 
+SELECT 
+E.queryPdb, TPRR.chain, TPRR.regionOrdinal, A.queryResidueNo, COUNT(*) 
+FROM
+Results R, Alignment A, Experiment E, TPRRegion TPRR 
+WHERE 
+R.resultId = A.resultId and R.experimentId = E.experimentId and E.regionId = TPRR.regionId
+GROUP BY 
+E.queryPdb, TPRR.chain, TPRR.regionId, A.queryResidueNo;
+INTO OUTFILE '/d/user6/md003/Project/db/sqlout/residueFrequencies.csv' fields terminated by ',' lines terminated by '\n';
 
+-- Select residue alignment frequency data for query PDBs, cancatenating PDB Code, Chain and TPR Region
+-- Fields are those required for residue alignment frequency analysis
+
+SELECT 
+CONCAT(queryPdb, TPRR.chain, '_', TPRR.regionOrdinal) AS 'PDBChainRegion', A.queryResidueNo, COUNT(*) 
+FROM
+Results R, Alignment A, Experiment E, TPRRegion TPRR 
+WHERE 
+R.resultId = A.resultId and R.experimentId = E.experimentId and E.regionId = TPRR.regionId
+AND
+E.superseded IS NULL and TPRR.superseded IS NULL
+GROUP BY 
+'PDBChainRegion', A.queryResidueNo;
+INTO OUTFILE '/d/user6/md003/Project/db/sqlout/residueFrequencies.csv' fields terminated by ',' lines terminated by '\n';
+
+-- Select TPR Boundaries
+-- Fields are those required for residue alignment frequency analysis
+
+SELECT 
+CONCAT(TTPR.pdbCode, TPRR.chain, '_', TPRR.regionOrdinal) AS 'PDBChainRegion', TPR.startResidue, TPR.endResidue 
+FROM
+TPRRegion TPRR, TPR 
+WHERE 
+TPRR.regionId = TPR.regionId
+AND
+TPRR.superseded IS NULL and TPR.superseded IS NULL
+INTO OUTFILE '/d/user6/md003/Project/db/sqlout/tprBoundaries.csv' fields terminated by ',' lines terminated by '\n';
