@@ -232,37 +232,3 @@ sub getAngle($$$){
 	}
 	return "NULL";	# Angle not found. Return NULL for convenient insertion into DB
 }
-
-
-
-
-
-# for (my $i = 0; $i < @ttprs; $i++){
-	# my ($ttprId, $pdbChain, $regionOrdinal, $tprOrdinal, $start, $end)  =  ($ttprs[$i][0], $ttprs[$i][1].$ttprs[$i][2], $ttprs[$i][3], $ttprs[$i][4], $ttprs[$i][5], $ttprs[$i][6]);
-	# print "TTPR ID: $ttprId\nPDB Chain: $pdbChain\nStart: $start End: $end\n";
-	# my $sse1 = getSSE();
-		
-	
-# }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# foreach my $pdb (sort keys %helices){
-	# for (my $i = 0; $i < scalar @{$helices{$pdb}}; $i++){
-		# print $helices{$pdb}[$i][0], " ", $helices{$pdb}[$i][1], " ", $helices{$pdb}[$i][2], "\n";
-	# }
-# }
-
-#print sort keys %pdbChains;
-
