@@ -134,7 +134,7 @@ sub parseResidues($){
 	my $chainRes = substr($pdbChain,4, length($pdbChain) - 4);
 	print "Unzipping $path\n";
 	system("gunzip $path");
-	$path = substr($alignFile,0,length($alignFile)-3); #Because .gz has been truncated from the end
+	$path = substr($path,0,length($path)-3); #Because .gz has been truncated from the end
 	if (open(INPDB, $path)){
 		while (my $line = <INPDB>){
 			if ($line =~ /^ATOM/){
