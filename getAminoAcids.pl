@@ -3,7 +3,10 @@
 # MSc Project: Origin & Evolution of TPR Domains
 # Author: David Morley
 # Script Name: getAminoAcids.pl
-# Version: 0001 (06/08/17)
+# Version: 	0001 (06/08/17)
+#			0002 (07/08/17)	getPDBPath($) updated to reflect the PDB directory
+#							structure on blackbird. Negative residue numbers in
+#							PDB files ignored.
 #
 # Purpose: 	Given an extract alignments that are missing amino acids, 
 #			parse the associated PDB files to obtain the amino acids corresponding 
@@ -14,6 +17,8 @@
 #		in a directory structure that will be returned by an amendable subroutine
 #		in this script. This supports testing on a small local pdb directory before
 #		transferring to the server 
+#	2.	Negative residue numbers feature in some PDB files, but don't feature in any
+#		of the FATCAT alignments encountered to date. I ignore negative residue numbers.
 #
 # Table Structures:
 #
@@ -142,8 +147,9 @@ sub parseResidues($){
 				my $res = $AA_MAP{$res3};
 				my $chainFile = substr($line, 21, 1);
 				my $resNo = trim(substr($line, 22, 4));
-				if ($chainRes eq $chainFile){
-					#print "Adding pdbChain $pdbChain residue No $resNo residue $res\n";
+				if ($chainRes eq $chainFile && $resNo >= 0){	
+					# Some PDB files contain negative residue numbers, but none feature in the FATCAT alignments encountered to date
+					# With the above clause, we ignore them
 					$residues{$pdbChain}[$resNo] = $res;
 				}
 			}
