@@ -9,6 +9,8 @@
 #							PDB files ignored.
 #			0003 (07/08/17) Handles cases where result or query residues are 
 #							unknown because they represent HETATM entries
+#			0004 (07/08/17)	Handles cases where residues have been modified and
+#							this has been document with MODRES entries
 #
 # Purpose: 	Given an extract alignments that are missing amino acids, 
 #			parse the associated PDB files to obtain the amino acids corresponding 
@@ -148,6 +150,18 @@ sub parseResidues($){
 	$path = substr($path,0,length($path)-3); #Because .gz has been truncated from the end
 	if (open(INPDB, $path)){
 		while (my $line = <INPDB>){
+			if ($line =~ /^MODRES/){
+				# These are residues that have been modified, such as changing methionine to selenomethionine to aid crystallography
+				my $res3 = substr($line, 24, 3);
+				my $res = $AA_MAP{$res3};
+				my $chainFile = substr($line, 16, 1);
+				my $resNo = trim(substr($line, 18, 4));
+				if ($chainRes eq $chainFile && $resNo >= 0){	
+					# Some PDB files contain negative residue numbers, but none feature in the FATCAT alignments encountered to date
+					# With the above clause, we ignore them
+					$residues{$pdbChain}[$resNo] = $res;
+				}				
+			}
 			if ($line =~ /^ATOM/){
 				my $res3 = substr($line, 17, 3);
 				my $res = $AA_MAP{$res3};
