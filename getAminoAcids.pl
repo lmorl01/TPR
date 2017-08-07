@@ -119,7 +119,7 @@ sub getPDBPath($){
 	my $pdbMid = substr($pdb, 1, 2);	# PDB file structure stores PDB files based on middle two characters of PDB code
 	my $hierarchy = "\/data\/structures\/divided\/pdb\/";
 	my ($prefix, $suffix) = ("pdb", ".ent.gz");
-	return $pdbDir.$hierarchy.$prefix.$pdb.$suffix;
+	return $pdbDir.$hierarchy.$pdbMid.$prefix.$pdb.$suffix;
 }
 
 sub getResidue($$){
