@@ -136,7 +136,6 @@ sub parseResidues($){
 				my $res = $AA_MAP{$res3};
 				my $chainFile = substr($line, 21, 1);
 				my $resNo = trim(substr($line, 22, 4));
-				#print "$res3 $res $chain $resNo\n";
 				if ($chainRes eq $chainFile){
 					print "Adding pdbChain $pdbChain residue No $resNo residue $res\n";
 					$residues{$pdbChain}[$resNo] = $res;
@@ -148,4 +147,4 @@ sub parseResidues($){
 }
 
 close(INFILE);
-close(OUTFILE);
+close(OUTFILE) or die "Unable to close $out\n";;
