@@ -109,11 +109,13 @@ while (my $line = <INFILE>) {
 	}	
 	my $queryRes = getResidue($queryPdbChain, $queryResNo);
 	my $resultRes = getResidue($resultPdbChain, $resultResNo);
-	print OUTFILE "UPDATE Alignment SET queryResidue=\'$queryRes\', resultResidue=\'$resultRes\' WHERE alignId=$alignId;\n";
+	if (defined($queryRes) && defined($resultRes)){
+		print OUTFILE "UPDATE Alignment SET queryResidue=\'$queryRes\', resultResidue=\'$resultRes\' WHERE alignId=$alignId;\n";	
+	}
 }	 
 
 sub getPDBPath($){
-	print $_[0], "\n";
+	#print $_[0], "\n";
 	my $pdb = substr($_[0], 0, 4);
 	return $pdbDir."\/pdb".$pdb.".ent";
 }
@@ -128,7 +130,7 @@ sub parseResidues($){
 	$residues{$pdbChain} = [];
 	my $path = getPDBPath($pdbChain);
 	my $chainRes = substr($pdbChain,4, length($pdbChain) - 4);
-	print $path, "\n";
+	#print $path, "\n";
 	if (open(INPDB, $path)){
 		while (my $line = <INPDB>){
 			if ($line =~ /^ATOM/){
@@ -142,8 +144,11 @@ sub parseResidues($){
 				}
 			}
 		}
-	} 
-	close (INPDB);
+		close (INPDB);	
+	} else {
+		print "Unable to open PDB file $path\n";
+	}
+	
 }
 
 close(INFILE);
