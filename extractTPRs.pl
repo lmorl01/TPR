@@ -148,7 +148,7 @@ while (my $line = <INFILE>) {
 			$newTpr[4] = \@emptyA3;			# This will be an array of end residue numbers
 			$newTpr[3][0] = $startResult;
 			$newTpr[4][0] = $endResult;				
-			splice $tprs{$pdbChain}, $insertPoint, 0, \@newTpr;
+			splice @{$tprs{$pdbChain}}, $insertPoint, 0, \@newTpr;
 		}	
 	}	
 }
