@@ -143,7 +143,7 @@ sub parseResidues($){
 				my $chainFile = substr($line, 21, 1);
 				my $resNo = trim(substr($line, 22, 4));
 				if ($chainRes eq $chainFile){
-					print "Adding pdbChain $pdbChain residue No $resNo residue $res\n";
+					#print "Adding pdbChain $pdbChain residue No $resNo residue $res\n";
 					$residues{$pdbChain}[$resNo] = $res;
 				}
 			}
