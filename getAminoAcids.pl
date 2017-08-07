@@ -7,6 +7,8 @@
 #			0002 (07/08/17)	getPDBPath($) updated to reflect the PDB directory
 #							structure on blackbird. Negative residue numbers in
 #							PDB files ignored.
+#			0003 (07/08/17) Handles cases where result or query residues are 
+#							unknown because they represent HETATM entries
 #
 # Purpose: 	Given an extract alignments that are missing amino acids, 
 #			parse the associated PDB files to obtain the amino acids corresponding 
@@ -116,6 +118,10 @@ while (my $line = <INFILE>) {
 	my $resultRes = getResidue($resultPdbChain, $resultResNo);
 	if (defined($queryRes) && defined($resultRes)){
 		print OUTFILE "UPDATE Alignment SET queryResidue=\'$queryRes\', resultResidue=\'$resultRes\' WHERE alignId=$alignId;\n";	
+	} elsif (defined($queryRes)){
+		print OUTFILE "UPDATE Alignment SET queryResidue=\'$queryRes\' WHERE alignId=$alignId;\n";
+	} elsif (defined($resultRes)){
+		print OUTFILE "UPDATE Alignment SET resultResidue=\'$resultRes\' WHERE alignId=$alignId;\n";
 	}
 }	 
 
