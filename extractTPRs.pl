@@ -19,27 +19,16 @@
 #
 # Table Structures:
 # 	
-# TentativeTPRRegion
-#
-# +---------------+------------+------+-----+---------+----------------+
-# | Field         | Type       | Null | Key | Default | Extra          |
-# +---------------+------------+------+-----+---------+----------------+
-# | ttprRegionId  | int(11)    | NO   | PRI | NULL    | auto_increment |
-# | pdbCode       | char(4)    | NO   | MUL | NULL    |                |
-# | chain         | varchar(5) | NO   |     | NULL    |                |
-# | start         | int(11)    | YES  |     | NULL    |                |
-# | end           | int(11)    | YES  |     | NULL    |                |
-# | regionOrdinal | int(11)    | YES  |     | NULL    |                |
-# | tprCount      | int(11)    | YES  |     | NULL    |                |
-# +---------------+------------+------+-----+---------+----------------+
-#
 # TentativeTPR
 #
 # +--------------+---------+------+-----+---------+----------------+
 # | Field        | Type    | Null | Key | Default | Extra          |
 # +--------------+---------+------+-----+---------+----------------+
 # | ttprId       | int(11) | NO   | PRI | NULL    | auto_increment |
-# | ttprRegionId | int(11) | NO   | MUL | NULL    |                |
+# | pdbCode      | char(4) | NO   | MUL | NULL    |                |
+# | chain        | char(5) | NO   |     | NULL    |                |
+# | regionOrdinal| int(11) | NO   |     | NULL    |                |
+# | tprOrdinal   | int(11) | YES  |     | NULL    |                |
 # | startMean    | float   | YES  |     | NULL    |                |
 # | startMedian  | float   | YES  |     | NULL    |                |
 # | startMode    | int(11) | YES  |     | NULL    |                |
@@ -50,10 +39,9 @@
 # | endMode      | int(11) | YES  |     | NULL    |                |
 # | endMax       | int(11) | YES  |     | NULL    |                |
 # | endMin       | int(11) | YES  |     | NULL    |                |
-# | aaAngle      | float   | YES  |     | NULL    |                |
 # | abAngle      | float   | YES  |     | NULL    |                |
+# | aaAngle      | float   | YES  |     | NULL    |                |
 # | baAngle      | float   | YES  |     | NULL    |                |
-# | tprOrdinal   | int(11) | YES  |     | NULL    |                |
 # +--------------+---------+------+-----+---------+----------------+
 #
 # Strategy: 
@@ -66,7 +54,8 @@
 # Arguments: 
 #	significantResults.csv		
 #	This should be the following fields comma separated:
-#	resultId, pdbCode, pdbText, chain, start, end
+#	resultId, queryPdb, queryChain, resultPdb, resultChain, tprOrdinal, startQuery, 
+#	endQuery, startResult, endResult
 #
 #	out.sql				
 #	The SQL output file for loading this data
