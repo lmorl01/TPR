@@ -94,7 +94,7 @@ while (my $line = <INFILE>) {
 	my $alignedResidues = int (($results[5]/100)*$results[7]); 										# (len1/100)*cov1
 	my $norm_rmsd = $alignedResidues == 0 ? "NULL" : $results[4]/sqrt($alignedResidues);			# normalised RMSD = RMSD/sqrt(n)
 	
-	my $path = $resDir."\/"."dbsearch_CUSTOM_".$pdbText.".xml.gz"
+	my $path = $resDir."\/"."dbsearch_CUSTOM_".$pdbText.".xml.gz";
 	print "Unzipping $path\n";
 	system("gunzip $path");
 	$path = substr($path,0,length($path)-3);	#Because .gz has been truncated from the end
@@ -102,7 +102,7 @@ while (my $line = <INFILE>) {
 	my ($start, $end, $chain) = getStartEndResiduesFromFatcatResultFile($path);
 	print "Zipping $path\n";
 	system("gzip $path");
-	my $chain = determineChainFromPdbText($pdbText);
+	#my $chain = determineChainFromPdbText($pdbText);
 	writePdbEntry($targetPdb, $results[10]);
 	writeResults($experimentId, $targetPdb, $results[1], $results[2], $results[3], $results[4], $norm_rmsd, $results[5], $results[6], $results[7], $results[8], $results[9], $alignedResidues, $results[10], $blocks, $chain, $start, $end);
  }  
