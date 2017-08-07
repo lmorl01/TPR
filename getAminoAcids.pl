@@ -117,7 +117,7 @@ while (my $line = <INFILE>) {
 sub getPDBPath($){
 	my $pdb = substr($_[0], 0, 4);
 	my $pdbMid = substr($pdb, 1, 2);	# PDB file structure stores PDB files based on middle two characters of PDB code
-	my $hierarchy = "data\/structures\/divided\/pdb\/";
+	my $hierarchy = "\/data\/structures\/divided\/pdb\/";
 	my ($prefix, $suffix) = ("pdb", ".ent.gz");
 	return $pdbDir.$hierarchy.$prefix.$pdb.$suffix;
 }
