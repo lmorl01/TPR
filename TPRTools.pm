@@ -3,7 +3,8 @@
 # MSc Project: Origin & Evolution of TPR Domains
 # Author: David Morley
 # Package Name: TPRTools.pm
-# Version: 0003 (11/06/17 12:28)
+# Version: 	0003 (11/06/17 12:28)
+# 			0004 (07/08/17) Close INFILE in getStartEndResiduesFromFatcatResultFile
 #
 # Purpose: 	A package of tools developed for use in the Origin & Evolution of 
 #			TPR Domains project
@@ -191,6 +192,7 @@ sub getStartEndResiduesFromFatcatResultFile($){
 				$chainId = $2;
 			}
 		}
+		close(INFILE);
 	}
 	
 	$start = ($start == $largeNo) ? 0 : $start;
