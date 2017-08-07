@@ -115,9 +115,11 @@ while (my $line = <INFILE>) {
 }	 
 
 sub getPDBPath($){
-	#print $_[0], "\n";
 	my $pdb = substr($_[0], 0, 4);
-	return $pdbDir."\/pdb".$pdb.".ent";
+	my $pdbMid = substr($pdb, 1, 2);	# PDB file structure stores PDB files based on middle two characters of PDB code
+	my $hierarchy = "data\/structures\/divided\/pdb\/";
+	my ($prefix, $suffix) = ("pdb", ".ent.gz");
+	return $pdbDir.$hierarchy.$prefix.$pdb.$suffix;
 }
 
 sub getResidue($$){
@@ -130,7 +132,9 @@ sub parseResidues($){
 	$residues{$pdbChain} = [];
 	my $path = getPDBPath($pdbChain);
 	my $chainRes = substr($pdbChain,4, length($pdbChain) - 4);
-	#print $path, "\n";
+	print "Unzipping $path\n";
+	system("gunzip $path");
+	$path = substr($alignFile,0,length($alignFile)-3); #Because .gz has been truncated from the end
 	if (open(INPDB, $path)){
 		while (my $line = <INPDB>){
 			if ($line =~ /^ATOM/){
@@ -148,8 +152,9 @@ sub parseResidues($){
 	} else {
 		print "Unable to open PDB file $path\n";
 	}
-	
+	print "Zipping $path\n";
+	system("gzip $path");
 }
 
 close(INFILE);
-close(OUTFILE) or die "Unable to close $out\n";;
+close(OUTFILE) or die "Unable to close $out\n";
