@@ -67,6 +67,7 @@ while (my $line = <INFILE>) {
 	system("gzip $alignFile");
 	if ($count%100 == 0){
 		print "$count records processed\n";
+		sleep 5;	# Give them a chance to read it
 	}
 }	 
 
