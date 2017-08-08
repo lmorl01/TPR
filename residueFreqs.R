@@ -4,19 +4,11 @@
 # MSc Project: Origin & Evolution of TPR Domains
 # Author: David Morley
 # Script Name: residueFreqs.R
-# Version: 0001 (06/08/17)
+# Version: 0002 (08/08/17)
 #
 # Purpose: 	Generate residue frequency graphs that show the frequency with which 
 #			each residue from the query TPR got aligned to a residue in a corresponding
 #			significant result
-#
-# Assumptions:
-#	1. 	TPR Regions contain 3 TPRs (where this isn't the case, the labels don't display 
-#		correctly). This should be updated in a later version
-#
-# Strategy: 
-#
-# Error Behaviour:
 #
 # Usage: source("residueFreqs.R")
 #
@@ -35,7 +27,7 @@
 ##########################################################################################
 
 # Read in a comma separated dataframe of residue frequencies
-freqs <- read.csv("resFreq_1Blk5.csv", header=FALSE)
+freqs <- read.csv("resFreq_1Blk.csv", header=FALSE)
 # Define the column names
 colnames(freqs) <- c("PDBChainRegion","Residue","Frequency")
 # Read in a comma separated dataframe of TPR boundaries
@@ -64,14 +56,14 @@ for (i in levels(freqs$PDBChainRegion)){
 	minFreq = min(freqVector)
 	# Get maximum residue frequency
 	maxFreq = max(freqVector)
-	
 	# Define y position as 20% of the way from the lowest to the highest frequency
 	y = minFreq + 0.2*(maxFreq-minFreq)	
 	# Define x position as 50% of the way through the TPR
 	x = tprStart + (tprEnd-tprStart)/2
+	# Define a vector of TPR ordinals
 	z = c(1:length(x))
+	# Plot TPR labels
 	text(x, y,paste("TPR",z))
-	
 	# Save plot
 	savePlot(filename=i, type="jpg")
 }
