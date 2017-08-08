@@ -5,6 +5,7 @@
 # Package Name: TPRTools.pm
 # Version: 	0003 (11/06/17 12:28)
 # 			0004 (07/08/17) Close INFILE in getStartEndResiduesFromFatcatResultFile
+#			0005 (08/08/17) determineChainFromPdbText should NOT change chain case
 #
 # Purpose: 	A package of tools developed for use in the Origin & Evolution of 
 #			TPR Domains project
@@ -41,11 +42,11 @@ sub truncatePDBFile($$$$$);
 sub determineChainFromPdbText($){
 
  if ($_[0] =~ m/^d[A-Za-z0-9]{4}([A-Za-z0-9]+)_?$/){
-	return uc substr($1,0,1);
+	return substr($1,0,1);
  } elsif ($_[0] =~ m/^PDP:([A-Za-z0-9]+)_?$/){
-	return uc substr($1,4,1);
+	return substr($1,4,1);
  } elsif ($_[0] =~ m/^[A-Z0-9]{4}.([A-Za-z0-9]){1}$/){
-	return uc $1;
+	return $1;
  } else {
 	return "";
  }
