@@ -130,10 +130,26 @@ CREATE TABLE Results
 CREATE INDEX ixExperimentId ON Results (experimentId);
 CREATE INDEX ixResultPdb ON Results (resultPdb);
 
+CREATE TABLE TTPRParameters
+(	ttprParamId			INT				SERIAL DEFAULT VALUE,
+	norm_rmsd			FLOAT			,
+	norm_score			FLOAT			,
+	probability			FLOAT			,
+	cov1				FLOAT			,
+	blocks				CHAR(20)		,
+	tprTolerance		INT				,
+	regionTolerance		INT				,
+	analysisDate		DATE			,
+	inputFile			TEXT			,
+	superseded			INT
+	PRIMARY KEY (ttprParamId),
+);
+
 CREATE TABLE TentativeTPR
 (	ttprId 			INT				SERIAL DEFAULT VALUE,
-	pdbCode			CHAR(4)			,
-	chain			CHAR(5)			,
+	ttprParamId		INT				NOT NULL,
+	pdbCode			CHAR(4)			NOT NULL,
+	chain			CHAR(5)			NOT NULL,
 	regionOrdinal	INT				,
 	tprOrdinal		INT				,
 	startMean		FLOAT			,
@@ -153,9 +169,13 @@ CREATE TABLE TentativeTPR
 	FOREIGN KEY (pdbCode) REFERENCES PDBEntry (pdbCode) 
 		ON DELETE RESTRICT 
 		ON UPDATE CASCADE
+	FOREIGN KEY (ttprParamId) REFERENCES TTPRParameters (ttprParamId) 
+		ON DELETE RESTRICT 
+		ON UPDATE CASCADE	
 );
 
 CREATE INDEX ixttprPdbCode ON TentativeTPR(pdbCode);
+CREATE INDEX ixttprParamId ON TentativeTPR(ttprParamId);
 
 CREATE TABLE Alignment
 (	alignId			INT				SERIAL DEFAULT VALUE,
