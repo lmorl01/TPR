@@ -4,6 +4,7 @@
 # Version: 	001, 30/07/2017
 #			002, 03/08/2017 Add chain to table
 #			003, 04/08/2017 Add start, end residues
+#			004, 08/08/2017 Add calculation of norm_score
 #
 # Purpose: 	Combine WritePopulateResults.pl and countBlocks.pl to combine two
 # 			steps on the analysis pipeline
@@ -93,7 +94,7 @@ while (my $line = <INFILE>) {
 	my $targetPdb = determinePdbFromPdbText($pdbText);
 	my $alignedResidues = int (($results[5]/100)*$results[7]); 										# (len1/100)*cov1
 	my $norm_rmsd = $alignedResidues == 0 ? "NULL" : $results[4]/sqrt($alignedResidues);			# normalised RMSD = RMSD/sqrt(n)
-	
+	my $norm_score = $alignedResidues == 0 ? "NULL" : $results[2]/sqrt($alignedResidues);
 	my $path = $resDir."\/"."dbsearch_CUSTOM_".$pdbText.".xml.gz";
 	print "Unzipping $path\n";
 	system("gunzip $path");
@@ -104,7 +105,7 @@ while (my $line = <INFILE>) {
 	system("gzip $path");
 	#my $chain = determineChainFromPdbText($pdbText);
 	writePdbEntry($targetPdb, $results[10]);
-	writeResults($experimentId, $targetPdb, $results[1], $results[2], $results[3], $results[4], $norm_rmsd, $results[5], $results[6], $results[7], $results[8], $results[9], $alignedResidues, $results[10], $blocks, $chain, $start, $end);
+	writeResults($experimentId, $targetPdb, $results[1], $results[2], $results[3], $results[4], $norm_rmsd, $results[5], $results[6], $results[7], $results[8], $results[9], $alignedResidues, $results[10], $blocks, $chain, $start, $end, $norm_score);
  }  
  close(INFILE) or die "Unable to close input file";
  close(OUTFILE) or die "Unable to close output file";
@@ -116,7 +117,7 @@ while (my $line = <INFILE>) {
  }
  
  sub writeResults($$$$$$$$$$$$$$$$$$){
-	print OUTFILE "INSERT INTO Results (experimentId, resultPdb, resultPdbText, score, probability, rmsd, norm_rmsd, len1, len2, cov1, cov2, percentId, alignedResidues, targetDescription, blocks, chain, start, end) VALUES ($_[0], \"$_[1]\", \"$_[2]\", $_[3], $_[4], $_[5], $_[6], $_[7], $_[8], $_[9], $_[10], $_[11], $_[12], \"$_[13]\", $_[14], \'$_[15]\', $_[16], $_[17]);\n";
+	print OUTFILE "INSERT INTO Results (experimentId, resultPdb, resultPdbText, score, probability, rmsd, norm_rmsd, len1, len2, cov1, cov2, percentId, alignedResidues, targetDescription, blocks, chain, start, end, norm_score) VALUES ($_[0], \"$_[1]\", \"$_[2]\", $_[3], $_[4], $_[5], $_[6], $_[7], $_[8], $_[9], $_[10], $_[11], $_[12], \"$_[13]\", $_[14], \'$_[15]\', $_[16], $_[17], $_[18]);\n";
  }
  
  sub getBlocks($){
