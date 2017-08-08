@@ -4,13 +4,15 @@
 -- Fields are those required for residue alignment frequency analysis
 
 SELECT 
-CONCAT(queryPdb, TPRR.chain, '_', TPRR.regionOrdinal) AS 'PDBChainRegion', A.queryResidueNo, COUNT(*) 
+CONCAT(queryPdb, TPRR.chain, '_', TPRR.regionOrdinal) AS 'PDBChainRegion', A.queryResidueNo, COUNT(*), COUNT(DISTINCT E.experimentId) 
 FROM
-Alignment A, Results R, Experiment E, TPRRegion TPRR 
+Alignment A, Results R, Experiment E, TPRRegion TPRR, ParameterSet P 
 WHERE 
-A.resultId = R.resultId and R.experimentId = E.experimentId and E.regionId = TPRR.regionId
+A.resultId = R.resultId and R.experimentId = E.experimentId and E.regionId = TPRR.regionId and E.parameterId = P.parameterId
 AND
 R.norm_rmsd < 0.24 and R.norm_score > 18 and R.probability < 0.004 and R.cov1 > 90 and R.blocks = 1 
+AND
+P.endTpr - P.startTpr = 2	-- This will limit it to results using 3 TPRs
 AND
 E.superseded IS NULL and TPRR.superseded IS NULL
 GROUP BY 
