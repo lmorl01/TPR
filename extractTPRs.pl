@@ -3,8 +3,11 @@
 # MSc Project: Origin & Evolution of TPR Domains
 # Author: David Morley
 # Script Name: extractTPRs.pl
-# Version: 0001 (05/08/17)
-# Change Log:
+# Version: 	0001 (05/08/17)
+#			0002 (08/08/17)	Tidied and debugged. TPR ordinals associated with
+#							region ordinals > 1 not output correctly.
+#							Added TTPR Parameter ID, TPR Tolerance and Region
+#							Tolerance as input parameters for the script
 #
 # Purpose: 	Given an extract of significant results from the Results table,
 #			which will contain redundancy, determine a non-redundant set of  
@@ -25,6 +28,7 @@
 # | Field        | Type    | Null | Key | Default | Extra          |
 # +--------------+---------+------+-----+---------+----------------+
 # | ttprId       | int(11) | NO   | PRI | NULL    | auto_increment |
+# | ttprParamId  | int(11) | NO   | MUL | NULL    | auto_increment |
 # | pdbCode      | char(4) | NO   | MUL | NULL    |                |
 # | chain        | char(5) | NO   |     | NULL    |                |
 # | regionOrdinal| int(11) | NO   |     | NULL    |                |
@@ -49,7 +53,7 @@
 # Error Behaviour:
 # 1. Print usage instructions if incorrect number of arguments
 #
-# Usage: perl extractTPRs.pl significantResults.csv out.sql
+# Usage: perl extractTPRs.pl ttprParamId tprTolerance regionTolerance significantResults.csv out.sql
 #			
 # Arguments: 
 #	significantResults.csv		
@@ -72,15 +76,19 @@ sub calculateMode($);
 sub getMax($);
 sub getMin($);
 
-if (!(scalar @ARGV == 2)){
-	print "Usage: perl extractTPRs.pl significantResults.csv out.sql\n";
+if (!(scalar @ARGV == 5 && $ARGV[0] =~ /^\d+$/ && $ARGV[1] =~ /^\d+$/ && $ARGV[2] =~ /^\d+$/)){
+	print "Usage: perl extractTPRs.pl ttprParamId tprTolerance regionTolerance significantResults.csv out.sql\n";
+	print "ttprParamId should be a key in the DB table TTPRParameters\n";
+	print "Recommended parameters:\nTPR Tolerance : 21\nRegion Tolerance: 34\n";
 	exit;
 }
 
-my $in = $ARGV[0];
-my $out = $ARGV[1];
-my $TPR_TOLERANCE = 21;
-my $REGION_TOLERANCE = 34;
+my $ttprParamId = $ARGV[0];
+my $TPR_TOLERANCE = $ARGV[1];
+my $REGION_TOLERANCE = $ARGV[2];
+my $in = $ARGV[3];
+my $out = $ARGV[4];
+
 my %tprs;
 
 open(INFILE, $in)
@@ -209,7 +217,7 @@ foreach my $pdb (sort keys %tprs){
 		my $startMin 		=	getMin(\@{$tprs{$pdb}[$i][3]});
 		my $endMin 			=	getMin(\@{$tprs{$pdb}[$i][4]});
 		
-		print OUTFILE "INSERT INTO TentativeTPR (pdbCode, chain, regionOrdinal, tprOrdinal, startMean, startMedian, startMode, startMax, startMin, endMean, endMedian, endMode, endMax, endMin) VALUES (\'$pdbCode\',\'$chain\',$regionOrdinal,$tprOrdinal,$tprs{$pdb}[$i][0],$startMedian,$startMode,$startMax,$startMin,$tprs{$pdb}[$i][1],$endMedian,$endMode,$endMax,$endMin);\n"
+		print OUTFILE "INSERT INTO TentativeTPR (ttprParamId, pdbCode, chain, regionOrdinal, tprOrdinal, startMean, startMedian, startMode, startMax, startMin, endMean, endMedian, endMode, endMax, endMin) VALUES ($ttprParamId,\'$pdbCode\',\'$chain\',$regionOrdinal,$tprOrdinal,$tprs{$pdb}[$i][0],$startMedian,$startMode,$startMax,$startMin,$tprs{$pdb}[$i][1],$endMedian,$endMode,$endMax,$endMin);\n"
 	}	
 }
 
