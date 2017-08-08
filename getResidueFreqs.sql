@@ -16,7 +16,7 @@ P.endTpr - P.startTpr = 2	-- This will limit it to results using 3 TPRs
 AND
 E.superseded IS NULL and TPRR.superseded IS NULL
 GROUP BY 
-E.queryPdb, R.parameterId, TPRR.chain, TPRR.regionOrdinal, A.queryResidueNo
+E.queryPdb, E.parameterId, TPRR.chain, TPRR.regionOrdinal, A.queryResidueNo
 INTO OUTFILE '/d/user6/md003/Project/db/sqlout/resFreq_1Blk5.csv' fields terminated by ',' lines terminated by '\n';
 
 -- Select TPR Boundaries
