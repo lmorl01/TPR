@@ -5,13 +5,13 @@
 SELECT 
 CONCAT(queryPdb, TPRR.chain, '_', TPRR.regionOrdinal) AS 'PDBChainRegion', A.queryResidueNo, COUNT(*) 
 FROM
-Results R, Alignment A, Experiment E, TPRRegion TPRR 
+Alignment A, Results R, Experiment E, TPRRegion TPRR 
 WHERE 
-R.resultId = A.resultId and R.experimentId = E.experimentId and E.regionId = TPRR.regionId
+A.resultId = R.resultId and R.experimentId = E.experimentId and E.regionId = TPRR.regionId
 AND
 R.norm_rmsd < 0.24 and R.norm_score > 18 and R.probability < 0.004 and R.cov1 > 90 and R.blocks = 1 
 AND
 E.superseded IS NULL and TPRR.superseded IS NULL
 GROUP BY 
-'PDBChainRegion', A.queryResidueNo
+'PDBChainRegion', queryPdb, TPRR.chain, TPRR.regionOrdinalA.queryResidueNo
 INTO OUTFILE '/d/user6/md003/Project/db/sqlout/resFreq_1Blk.csv' fields terminated by ',' lines terminated by '\n';
