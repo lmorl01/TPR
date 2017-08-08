@@ -79,7 +79,7 @@ if (!(scalar @ARGV == 2)){
 
 my $in = $ARGV[0];
 my $out = $ARGV[1];
-my $TPR_TOLERANCE = 15;
+my $TPR_TOLERANCE = 21;
 my $REGION_TOLERANCE = 34;
 my %tprs;
 
@@ -88,107 +88,134 @@ open(INFILE, $in)
 open(OUTFILE, ">$out")
 	 or die "Can't create output file $out\n";
 	 
+################################################################################
+# STAGE 1: READ IN ALL OF THE TENTATIVE TPRS FROM THE INPUT FILE
+################################################################################
+#
+# DATA STRUCTURES
+#
+# PDB Codes and chains are concatenated to create a PDBChain
+#
+# Each PDBChain is a key in the %tprs hash pointing to an array reference
+# 
+# Each array represents a TPR associated with the PDB Chain.
+#
+# The TPR is a consensus built from multiple TPRs matched from the results
+#
+# The TPR array contains five elements:
+# [0]	The average start residue
+# [1]	The average end residue
+# [2]	A count of the number of hits that have contributed to the consensus TPR
+# [3]	A pointer to another array storing all start values from associated hits
+# [4]	A pointer to another array storing all end values from associated hits
+#
+################################################################################
+	 
 while (my $line = <INFILE>) {
 	my @values = split /,/, trim($line);
-	print "\n$values[0] $values[3] $values[4] $values[5] $values[8] $values[9]\n";
 	my ($resultId, $queryPdb, $queryChain, $resultPdb, $resultChain, $tprOrdinal, $startQuery, $endQuery, $startResult, $endResult) 
-		= ($values[0], $values[1], $values[2], $values[3], $values[4], $values[5], $values[6], $values[7], $values[8], $values[9]);
-	
+		= @values;
 	my $pdbChain = $resultPdb.$resultChain;
 	
 	if (!exists $tprs{$pdbChain}){
-		# First TPR in this PDB Chain, so we add it
-		print "Adding first TPR for PDB Chain $pdbChain\n";
-		my (@emptyA1, @emptyA2, @emptyA3, @emptyA4);
-		$tprs{$pdbChain} = \@emptyA1;
-		$tprs{$pdbChain}[0] = \@emptyA2;
+		# First TPR in this PDB Chain
+		#print "Adding first TPR for PDB Chain $pdbChain\n";
+		$tprs{$pdbChain} = [];						# Create an array for the PDB Chain
+		$tprs{$pdbChain}[0] = [];					# Create an array for the first TPR
 		$tprs{$pdbChain}[0][0] = $startResult;		# This will track the average start residue
 		$tprs{$pdbChain}[0][1] = $endResult;		# This will track the average end residue
 		$tprs{$pdbChain}[0][2] = 1;					# This will count the hits for this TPR
-		$tprs{$pdbChain}[0][3] = \@emptyA3;			# This will be an array of start residue numbers
-		$tprs{$pdbChain}[0][4] = \@emptyA4;			# This will be an array of end residue numbers
-		$tprs{$pdbChain}[0][3][0] = $startResult;
-		$tprs{$pdbChain}[0][4][0] = $endResult;
+		$tprs{$pdbChain}[0][3] = [];				# This will be an array of start residue numbers
+		$tprs{$pdbChain}[0][4] = [];				# This will be an array of end residue numbers
+		$tprs{$pdbChain}[0][3][0] = $startResult;	# Add the first start residue for this TPR
+		$tprs{$pdbChain}[0][4][0] = $endResult;		# Add the first end residue for this TPR
 		
 	} else {
-		print "PDB Chain is known\n";
+		# PDB Chain is known
 		my $known = 0;
 		for (my $i = 0; $i < scalar @{$tprs{$pdbChain}}; $i++){
-			#print "Comparing to known TPR with start residue $tprs{$pdbChain}[$i][0] and end residue $tprs{$pdbChain}[$i][1]\n";
-			#print abs($tprs{$pdbChain}[$i][0] - $startResult), " ", abs($tprs{$pdbChain}[$i][1] - $endResult), "\n";
 			if (((abs($tprs{$pdbChain}[$i][0] - $startResult)) < $TPR_TOLERANCE) && ((abs($tprs{$pdbChain}[$i][1] - $endResult)) < $TPR_TOLERANCE)){
+				# This is a TPR we've encountered before
 				$known = 1;
-				print "Known TPR found\n";
+				#print "Known TPR found\n";
 				# Update average start residue
 				$tprs{$pdbChain}[$i][0] = ($tprs{$pdbChain}[$i][0] * $tprs{$pdbChain}[$i][2] + $startResult)/($tprs{$pdbChain}[$i][2] + 1);
 				# Update average end residue
 				$tprs{$pdbChain}[$i][1] = ($tprs{$pdbChain}[$i][1] * $tprs{$pdbChain}[$i][2] + $endResult)/($tprs{$pdbChain}[$i][2] + 1);
-				$tprs{$pdbChain}[$i][2]++;					# Update the TPR count
+				# Update the TPR count
+				$tprs{$pdbChain}[$i][2]++;					
 				my $new = scalar @{$tprs{$pdbChain}[$i][3]};
+				# Add the start/end residues
 				$tprs{$pdbChain}[$i][3][$new] = $startResult;
 				$tprs{$pdbChain}[$i][4][$new] = $endResult;				
 			}
 		}
 		if (!($known)){
-			print "TPR not yet known\n";
+			# This is a new TPR in a known PDBChain
 			my $insertPoint = 0;
+			# Determine where to splice it into the array to keep them in order
 			for (my $i = 0; $i < scalar @{$tprs{$pdbChain}}; $i++){
 				if ($startResult > $tprs{$pdbChain}[$i][0]){
 					$insertPoint = $i + 1;
 				}
 			}
-			print "Insert Point: ", $insertPoint, "\n";
-			
-			my (@emptyA1, @emptyA2, @emptyA3);			
 			my @newTpr;
 			$newTpr[0] = $startResult;		# This will track the average start residue
 			$newTpr[1] = $endResult;		# This will track the average end residue
 			$newTpr[2] = 1;					# This will count the hits for this TPR
-			$newTpr[3] = \@emptyA2;			# This will be an array of start residue numbers
-			$newTpr[4] = \@emptyA3;			# This will be an array of end residue numbers
-			$newTpr[3][0] = $startResult;
-			$newTpr[4][0] = $endResult;				
+			$newTpr[3] = [];				# This will be an array of start residue numbers
+			$newTpr[4] = [];				# This will be an array of end residue numbers
+			$newTpr[3][0] = $startResult;	# Add the first start residue for this TPR
+			$newTpr[4][0] = $endResult;		# Add the first end residue for this TPR		
 			splice @{$tprs{$pdbChain}}, $insertPoint, 0, \@newTpr;
 		}	
 	}	
 }
 
-foreach my $pdb (keys %tprs){
-	print "\nProcessing PDB Chain ", $pdb, "\n";	
+################################################################################
+# STAGE 2: ITERATE THROUGH ALL PDB CODES, PRINTING CONSENSUS TENTATIVE TPRS
+################################################################################
+
+foreach my $pdb (sort keys %tprs){
+	print "Processing PDB Chain ", $pdb, "\n";	
 	my @regions;
 	$regions[0] = 1;
-	my $region = 1;
-	my ($regionStart, $regionEnd) = ($tprs{$pdb}[0][0],$tprs{$pdb}[0][1]);
+	my $currentRegion = 1;
+	# Iterate through the TPRs and check whether they are in the same region
+	# as their predecessor.	
 	for (my $i = 1; $i < scalar @{$tprs{$pdb}}; $i++){
 		if (($tprs{$pdb}[$i][0] - $tprs{$pdb}[$i-1][1]) > $REGION_TOLERANCE){
-			$region++;
+			$currentRegion++;
 		}
-		$regions[$i] = $region;
+		$regions[$i] = $currentRegion;
 	}
 	
 	my $pdbCode = substr($pdb, 0, 4);
 	my $chain = substr($pdb, 4, length($pdb)-4);
 	my ($regionOrdinal, $tprOrdinal) = (1, 0);
 	for (my $i = 0; $i < scalar @{$tprs{$pdb}}; $i++){
-		print "Processing TPR start ", $tprs{$pdb}[$i][0], " end ", $tprs{$pdb}[$i][1], " region ", $regions[$i], "\n";
 		if ($regions[$i] > $regionOrdinal){
+			$regionOrdinal++;
 			$tprOrdinal = 0;
 		}
 		$tprOrdinal++;
-		my $regionOrdinal = $regions[$i];
-		my $startMedian = calculateMedian(\@{$tprs{$pdb}[$i][3]});	
-		my $endMedian = calculateMedian(\@{$tprs{$pdb}[$i][4]});
-		my $startMode = calculateMode(\@{$tprs{$pdb}[$i][3]});
-		my $endMode = calculateMode(\@{$tprs{$pdb}[$i][4]});
-		my $startMax = getMax(\@{$tprs{$pdb}[$i][3]});
-		my $endMax = getMax(\@{$tprs{$pdb}[$i][4]});
-		my $startMin = getMin(\@{$tprs{$pdb}[$i][3]});
-		my $endMin = getMin(\@{$tprs{$pdb}[$i][4]});
-		print "Start Mode: $startMode\n";
-		print "\n";
+		my $regionOrdinal 	= 	$regions[$i];
+		my $startMedian 	= 	calculateMedian(\@{$tprs{$pdb}[$i][3]});	
+		my $endMedian 		= 	calculateMedian(\@{$tprs{$pdb}[$i][4]});
+		my $startMode 		= 	calculateMode(\@{$tprs{$pdb}[$i][3]});
+		my $endMode 		=	calculateMode(\@{$tprs{$pdb}[$i][4]});
+		my $startMax 		=	getMax(\@{$tprs{$pdb}[$i][3]});
+		my $endMax 			=	getMax(\@{$tprs{$pdb}[$i][4]});
+		my $startMin 		=	getMin(\@{$tprs{$pdb}[$i][3]});
+		my $endMin 			=	getMin(\@{$tprs{$pdb}[$i][4]});
+		
 		print OUTFILE "INSERT INTO TentativeTPR (pdbCode, chain, regionOrdinal, tprOrdinal, startMean, startMedian, startMode, startMax, startMin, endMean, endMedian, endMode, endMax, endMin) VALUES (\'$pdbCode\',\'$chain\',$regionOrdinal,$tprOrdinal,$tprs{$pdb}[$i][0],$startMedian,$startMode,$startMax,$startMin,$tprs{$pdb}[$i][1],$endMedian,$endMode,$endMax,$endMin);\n"
 	}	
 }
+
+################################################################################
+# STATISTICAL SUBROUTINES
+################################################################################
 
 sub calculateMedian($){
 	my @values = @{$_[0]};
@@ -223,7 +250,7 @@ sub calculateMode($){
 	if (scalar @modes == 1){
 		return $modes[0];
 	}
-	
+
 	# Otherwise, let's pick the mode that's closest to the mean
 	else {
 		my $mean = 0;
@@ -241,9 +268,7 @@ sub calculateMode($){
 		}
 		return $bestMode;
 	}
-	
 	# If multiple modes are equally close to the mean, we return the first one we find
-	
 }
 
 sub getMax($){
@@ -268,4 +293,6 @@ sub getMin($){
 	return $min;
 }
 
-
+################################################################################
+# END
+################################################################################
