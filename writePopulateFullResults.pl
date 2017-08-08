@@ -94,7 +94,7 @@ while (my $line = <INFILE>) {
 	my $targetPdb = determinePdbFromPdbText($pdbText);
 	my $alignedResidues = int (($results[5]/100)*$results[7]); 										# (len1/100)*cov1
 	my $norm_rmsd = $alignedResidues == 0 ? "NULL" : $results[4]/sqrt($alignedResidues);			# normalised RMSD = RMSD/sqrt(n)
-	my $norm_score = $alignedResidues == 0 ? "NULL" : $results[2]/sqrt($alignedResidues);
+	my $norm_score = $alignedResidues == 0 ? 0 : $results[2]/sqrt($alignedResidues);
 	my $path = $resDir."\/"."dbsearch_CUSTOM_".$pdbText.".xml.gz";
 	print "Unzipping $path\n";
 	system("gunzip $path");
