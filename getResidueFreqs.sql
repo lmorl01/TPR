@@ -4,7 +4,7 @@
 -- Fields are those required for residue alignment frequency analysis
 
 SELECT 
-CONCAT(queryPdb, TPRR.chain, '_', TPRR.regionOrdinal"_TPR_", P.startTpr, "-", P.endTpr) AS 'PDBChainRegionTPRs', A.queryResidueNo, COUNT(*)
+CONCAT(E.queryPdb, TPRR.chain, '_', TPRR.regionOrdinal, "_TPR_", P.startTpr, "-", P.endTpr) AS 'PDBChainRegionTPRs', A.queryResidueNo, COUNT(*)
 FROM
 Alignment A, Results R, Experiment E, TPRRegion TPRR, ParameterSet P 
 WHERE 
