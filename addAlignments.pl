@@ -65,7 +65,7 @@ while (my $line = <INFILE>) {
 	processAlignments($resultId, $alignFile);
 	print "Zipping $alignFile\n";
 	system("gzip $alignFile");
-	if ($count%100 == 0){
+	if ($count%500 == 0){
 		print "$count records processed\n";
 		sleep 2;	# Give them a chance to read it
 	}
