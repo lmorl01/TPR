@@ -18,11 +18,11 @@
 #
 # Error Behaviour:
 #
-# Usage: residueFreqs.R
+# Usage: source("residueFreqs.R")
 #
 #	The working directory should contain:
 #			
-#	residueFreqTest.csv		
+#	resFreq_1Blk.csv		
 #	Extract from the DB with the following fields:
 #	CONCAT(queryPdb, TPRR.chain, '_', TPRR.regionOrdinal) AS 'PDBChainRegion', 
 #	A.queryResidueNo, COUNT(*)
@@ -35,7 +35,7 @@
 ##########################################################################################
 
 # Read in a comma separated dataframe of residue frequencies
-freqs <- read.csv("residueFreqTest.csv", header=FALSE)
+freqs <- read.csv("resFreq_1Blk5.csv", header=FALSE)
 # Define the column names
 colnames(freqs) <- c("PDBChainRegion","Residue","Frequency")
 # Read in a comma separated dataframe of TPR boundaries
@@ -48,36 +48,32 @@ win.graph(width=22, height=11)
 for (i in levels(freqs$PDBChainRegion)){
 	print(i)
 	# Plot residue frequencies with title, axes, blue filled points
-	plot(freqs[freqs$PDBChainRegion==i,2],freqs[freqs$PDBChainRegion==i,3], main = paste("Frequency with which residues of the TPR region ", i, "featured in significant alignments"), xlab="Residue numbers with TPR boundaries marked", ylab="Frequency", type="p", col="blue", pch=16)
+	plot(freqs[freqs$PDBChainRegion==i,2],freqs[freqs$PDBChainRegion==i,3], main = paste("Frequency with which residues of ", i, "featured in significant alignments for 3-TPR searches"), xlab="Residue numbers with TPR boundaries marked", ylab="Frequency", type="p", col="blue", pch=16)
+	# Extract the PDB Chain Region only as this is a factor in boundaries
+	region <- substr(i,1,7)
 	# Add TPR start boundaries
-	abline(v=boundaries[boundaries$PDBChainRegion==i,2])
+	abline(v=boundaries[boundaries$PDBChainRegion==region,2])
 	# Add TPR end boundaries
-	abline(v=boundaries[boundaries$PDBChainRegion==i,3])
+	abline(v=boundaries[boundaries$PDBChainRegion==region,3])
 	# Get TPR start residues for this TPR
-	tprStart <- boundaries[boundaries$PDBChainRegion==i,2]
-	tprEnd <- boundaries[boundaries$PDBChainRegion==i,3]
+	tprStart <- boundaries[boundaries$PDBChainRegion==region,2]
+	tprEnd <- boundaries[boundaries$PDBChainRegion==region,3]
 	# Get residue frequencies for this TPR
 	freqVector = freqs[freqs$PDBChainRegion==i,3]
 	# Get minimum residue frequency
 	minFreq = min(freqVector)
 	# Get maximum residue frequency
 	maxFreq = max(freqVector)
-	# Define x position as 50% of the way through the TPR
-	x = tprStart[1] + (tprEnd[1]-tprStart[1])/2
+	
 	# Define y position as 20% of the way from the lowest to the highest frequency
-	y = minFreq + 0.2*(maxFreq-minFreq)
-	# Add label for TPR 1, half-way through the TPR
-	text(x, y,"TPR 1")
+	y = minFreq + 0.2*(maxFreq-minFreq)	
 	# Define x position as 50% of the way through the TPR
-	x = tprStart[2] + (tprEnd[2]-tprStart[2])/2
-	# Add label for TPR 2, half-way through the TPR
-	text(x, y,"TPR 2")
-	# Define x position as 50% of the way through the TPR
-	x = tprStart[3] + (tprEnd[3]-tprStart[3])/2
-	# Add label for TPR 3, half-way through the TPR
-	text(x, y,"TPR 3")
+	x = tprStart + (tprEnd-tprStart)/2
+	z = c(1:length(x))
+	text(x, y,paste("TPR",z))
+	
 	# Save plot
-	savePlot(filename=paste(i,".jpg"), type="jpg")
+	savePlot(filename=i, type="jpg")
 }
 
 
