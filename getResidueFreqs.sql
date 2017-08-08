@@ -4,7 +4,7 @@
 -- Fields are those required for residue alignment frequency analysis
 
 SELECT 
-CONCAT(queryPdb, TPRR.chain, '_', TPRR.regionOrdinal) AS 'PDBChainRegion', A.queryResidueNo, COUNT(*), COUNT(DISTINCT E.experimentId) 
+CONCAT(queryPdb, TPRR.chain, '_', TPRR.regionOrdinal) AS 'PDBChainRegion', A.queryResidueNo, COUNT(*), CONCAT("TPR_", P.startTpr, "-", P.endTpr) AS 'TPRRange'
 FROM
 Alignment A, Results R, Experiment E, TPRRegion TPRR, ParameterSet P 
 WHERE 
@@ -16,8 +16,8 @@ P.endTpr - P.startTpr = 2	-- This will limit it to results using 3 TPRs
 AND
 E.superseded IS NULL and TPRR.superseded IS NULL
 GROUP BY 
-'PDBChainRegion', queryPdb, TPRR.chain, TPRR.regionOrdinal, A.queryResidueNo
-INTO OUTFILE '/d/user6/md003/Project/db/sqlout/resFreq_1Blk.csv' fields terminated by ',' lines terminated by '\n';
+E.queryPdb, R.parameterId, TPRR.chain, TPRR.regionOrdinal, A.queryResidueNo
+INTO OUTFILE '/d/user6/md003/Project/db/sqlout/resFreq_1Blk5.csv' fields terminated by ',' lines terminated by '\n';
 
 -- Select TPR Boundaries
 -- Fields are those required for residue alignment frequency analysis
