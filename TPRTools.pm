@@ -27,7 +27,7 @@ use Exporter;
 
 our @ISA = ("Exporter");
 our @EXPORT = ("determineChainFromPdbText", "determinePdbFromPdbText", 
-	"getChainFromFatcatResultFile", "getPdbCodeFromFatcatResultFile", 
+	"getChainFromFatcatResultFile", "getPdbCodeFromFatcatResultFile", "getPDBPath",
 	"getStartEndResiduesFromFatcatResultFile", "truncatePDBFile", "extractAlignmentRegion", "trim");
 
 #sub contains($$);
@@ -36,6 +36,7 @@ sub determinePdbFromPdbText($);
 sub extractAlignmentRegion($);
 sub getChainFromFatcatResultFile($);
 sub getPdbCodeFromFatcatResultFile($);
+sub getPDBPath($$);
 sub getStartEndResiduesFromFatcatResultFile($);
 sub trim($);
 sub truncatePDBFile($$$$$);
@@ -155,6 +156,16 @@ sub getPdbCodeFromFatcatResultFile($){
 		}
 	}
 	return $pdbCode;
+}
+
+
+sub getPDBPath($$){
+	my $pdb = substr($_[0], 0, 4);
+	my $pdbDir = $_[1];
+	my $pdbMid = substr($pdb, 1, 2);	# PDB file structure stores PDB files based on middle two characters of PDB code
+	my $hierarchy = "\/data\/structures\/divided\/pdb\/";
+	my ($prefix, $suffix) = ("\/pdb", ".ent.gz");
+	return $pdbDir.$hierarchy.$pdbMid.$prefix.$pdb.$suffix;
 }
 
 #####################################################################################
