@@ -40,7 +40,7 @@ while (my $line = <INFILE>) {
 	$line = trim($line);
 	my $path = getPDBPath($line, $pdbDir);
 	print "Copying PDB file $path to $targetDir\n";
-	system("cp $path $pdbDir");
+	system("cp $path $targetDir");
 }	  
 
 system("gunzip $targetDir/*.gz");
