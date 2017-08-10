@@ -28,7 +28,7 @@ use Exporter;
 our @ISA = ("Exporter");
 our @EXPORT = ("determineChainFromPdbText", "determinePdbFromPdbText", 
 	"getChainFromFatcatResultFile", "getPdbCodeFromFatcatResultFile", "getPDBPath",
-	"getStartEndResiduesFromFatcatResultFile", "truncatePDBFile", "extractAlignmentRegion", "trim");
+	"getStartEndResiduesFromFatcatResultFile", "getTTPRs", "truncatePDBFile", "extractAlignmentRegion", "trim");
 
 #sub contains($$);
 sub determineChainFromPdbText($);
@@ -38,6 +38,7 @@ sub getChainFromFatcatResultFile($);
 sub getPdbCodeFromFatcatResultFile($);
 sub getPDBPath($$);
 sub getStartEndResiduesFromFatcatResultFile($);
+sub getTTPRs($);
 sub trim($);
 sub truncatePDBFile($$$$$);
 
@@ -212,6 +213,41 @@ sub getStartEndResiduesFromFatcatResultFile($){
 	
 	return ($start, $end, $chainId);
 	
+}
+
+#####################################################################################
+# Purpose: 	Read TTPRs from an export from the TTPR table and load them into a hash
+# Arguments: 
+# 	string 		$_[0]: 	the path to the file containing TTPRs
+# Return: 
+#	string		A reference to a hash of TTPRs. PDBChains (e.g. 1a17A) are the keys.
+#				The values are an array representing TTPRs associated with the PDBChains
+#				Each value of the array is itself a reference to an array containing
+#				the various properties of the TTPR:
+#				[0] TTPR Id
+#				[1] PDB Code
+#				[2] Chain
+#				[3] Region Ordinal
+#				[4] TPR Ordinal
+#				[5] Modal Start Residue
+#				[6] Modal End Residue
+# Error Behaviour: 
+#	None
+#####################################################################################
+sub getTTPRs($){
+	my $in = $_[0];
+	open(INFILE, $in)
+      or die "Can't open file $in\n"; 
+	my %ttprs;
+	while (my $line = <INFILE>) {
+		my @ttpr = split /,/, trim($line);
+		my $pdbChain = $ttpr[1].$ttpr[2];
+		if (!exists($ttprs{$pdbChain})){
+			$ttprs{$pdbChain} = [];
+		}
+		push @{$ttprs{$pdbChain}}, \@ttpr;
+	}
+	return \%ttprs;
 }
 
 #####################################################################################
