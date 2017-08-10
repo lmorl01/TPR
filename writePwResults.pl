@@ -123,7 +123,7 @@ while (my $line = <INFILE>) {
 		}
 	}	
 	
-	print OUTFILE "INSERT INTO PWSimilarity (ttprId, pdb1, chain1, start1, end1, ttprId2, pdb2, chain2, start2, end2, tprCount, score, norm_score, probability, rmsd, norm_rmsd, len1, len2, cov1, cov2, percentId, alignedResidues) VALUES ($ttprId1, \"$pdb1\", \"$chain1\", $start1, $end1, $ttprId2, \"$pdb2\", \"$chain2\", $start2, $end2, $tprCount, $score, $norm_score, $probability, $rmsd, $norm_rmsd, $len1, $len2, $cov1, $cov2, $percentId, $alignedResidues);\n";
+	print OUTFILE "INSERT INTO PWSimilarity (ttprId1, pdb1, chain1, start1, end1, ttprId2, pdb2, chain2, start2, end2, tprCount, score, norm_score, probability, rmsd, norm_rmsd, len1, len2, cov1, cov2, percentId, alignedResidues) VALUES ($ttprId1, \"$pdb1\", \"$chain1\", $start1, $end1, $ttprId2, \"$pdb2\", \"$chain2\", $start2, $end2, $tprCount, $score, $norm_score, $probability, $rmsd, $norm_rmsd, $len1, $len2, $cov1, $cov2, $percentId, $alignedResidues);\n";
 	
 	$processed++;
  }  
