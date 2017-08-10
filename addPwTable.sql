@@ -1,26 +1,28 @@
 -- David Morley, MSc Bioinformatics 2015-2017
 -- MSc Project: Origin & Evolution of TPR Domains
--- Version: addPwTable.sql, 01/06/2017
+-- Version 	01: addPwTable.sql, 01/06/2017
+--			02: New table definition, 10/08/17
 -- Purpose: Update the Database Schema to add a new table for storing
 -- pairwise similarity data from FATCAT -alignPairs 
 
-DROP TABLE IF EXISTS PWSimilarity;
-
 CREATE TABLE PWSimilarity
 (	pwId				INT				SERIAL DEFAULT VALUE,
-	experimentId		INT				,
+	ttprId1				INT				,
 	pdb1				CHAR(4)			,
-	chain1				CHAR(1)			,
+	chain1				CHAR(5)			,
 	start1				INT				,
 	end1				INT				,
+	ttprId2				INT				,
 	pdb2				CHAR(4)			,
-	chain2				CHAR(1)			,
+	chain2				CHAR(5)			,
 	start2				INT				,
 	end2				INT				,
+	tprCount			INT				,
 	score				FLOAT			,
+	norm_score			FLOAT			,
 	probability			FLOAT			,
 	rmsd				FLOAT			,
-	rmsdNorm			FLOAT			,
+	norm_rmsd			FLOAT			,
 	len1				INT				,
 	len2				INT				,
 	cov1				INT				,
@@ -28,7 +30,10 @@ CREATE TABLE PWSimilarity
 	percentId			FLOAT			,
 	alignedResidues		INT				,
 	PRIMARY KEY (pwId),
-	FOREIGN KEY (experimentId) REFERENCES Experiment(experimentId)
+	FOREIGN KEY (ttprId1) REFERENCES TentativeTPR(ttprId)
+		ON DELETE RESTRICT 
+		ON UPDATE CASCADE,
+	FOREIGN KEY (ttprId2) REFERENCES TentativeTPR(ttprId)
 		ON DELETE RESTRICT 
 		ON UPDATE CASCADE,
 	FOREIGN KEY (pdb1) REFERENCES PDBEntry(pdbCode)
@@ -38,7 +43,3 @@ CREATE TABLE PWSimilarity
 		ON DELETE RESTRICT 
 		ON UPDATE CASCADE
 );
-
-CREATE INDEX ixPwId ON PWSimilarity (pwId);
-CREATE INDEX ixPdb1 ON PWSimilarity (pdb1);
-CREATE INDEX ixPdb2 ON PWSimilarity (pdb2);

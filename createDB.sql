@@ -2,7 +2,7 @@
 -------------------------------------------------------------------------------------------------
 -- David Morley, MSc Bioinformatics 2015-2017
 -- MSc Project: Origin & Evolution of TPR Domains
--- Version: 005, 07/08/2017
+-- Version: 006, 10/08/2017
 -- Version History:
 -- 001: Initial Version creates tables PDBEntry, TPRRegion, TPR, Experiment, Result
 -- 002: Amendments to tables Experiment & Result and addition of table ParameterSet
@@ -12,6 +12,7 @@
 -- 		obsolete. New TentativeTPR table created. 'superseded' fields added to a number of tables
 --		Alignment table added including indexes on queryResidueNo and resultResidueNo. INDEXES
 --		added on TPR.startResidue, TPR.endResidue
+-- 006: New PWSimilarity table
 -------------------------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------------------------
@@ -168,7 +169,7 @@ CREATE TABLE TentativeTPR
 	PRIMARY KEY (ttprId),
 	FOREIGN KEY (pdbCode) REFERENCES PDBEntry (pdbCode) 
 		ON DELETE RESTRICT 
-		ON UPDATE CASCADE
+		ON UPDATE CASCADE,
 	FOREIGN KEY (ttprParamId) REFERENCES TTPRParameters (ttprParamId) 
 		ON DELETE RESTRICT 
 		ON UPDATE CASCADE	
@@ -195,6 +196,50 @@ CREATE INDEX ixresultId ON Alignment(resultId);
 CREATE INDEX ixqueryResidueNo ON Alignment(queryResidueNo);
 CREATE INDEX ixresultResidueNo ON Alignment(resultResidueNo);
 
+CREATE TABLE PWSimilarity
+(	pwId				INT				SERIAL DEFAULT VALUE,
+	ttprId1				INT				,
+	pdb1				CHAR(4)			,
+	chain1				CHAR(5)			,
+	start1				INT				,
+	end1				INT				,
+	ttprId2				INT				,
+	pdb2				CHAR(4)			,
+	chain2				CHAR(5)			,
+	start2				INT				,
+	end2				INT				,
+	tprCount			INT				,
+	score				FLOAT			,
+	norm_score			FLOAT			,
+	probability			FLOAT			,
+	rmsd				FLOAT			,
+	norm_rmsd			FLOAT			,
+	len1				INT				,
+	len2				INT				,
+	cov1				INT				,
+	cov2				INT				,
+	percentId			FLOAT			,
+	alignedResidues		INT				,
+	PRIMARY KEY (pwId),
+	FOREIGN KEY (ttprId1) REFERENCES TentativeTPR(ttprId)
+		ON DELETE RESTRICT 
+		ON UPDATE CASCADE,
+	FOREIGN KEY (ttprId2) REFERENCES TentativeTPR(ttprId)
+		ON DELETE RESTRICT 
+		ON UPDATE CASCADE,
+	FOREIGN KEY (pdb1) REFERENCES PDBEntry(pdbCode)
+		ON DELETE RESTRICT 
+		ON UPDATE CASCADE,
+	FOREIGN KEY (pdb2) REFERENCES PDBEntry(pdbCode)
+		ON DELETE RESTRICT 
+		ON UPDATE CASCADE
+);
+
+CREATE INDEX ixPdb1 ON PWSimilarity (pdb1);
+CREATE INDEX ixPdb2 ON PWSimilarity (pdb2);
+CREATE INDEX ixttprId1 ON PWSimilarity (ttprId1);
+CREATE INDEX ixttprId2 ON PWSimilarity (ttprId2);
+
 -------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------
 ----------------------------TABLES UNDER DEVELOPMENT OR REFINEMENT-------------------------------
@@ -202,6 +247,16 @@ CREATE INDEX ixresultResidueNo ON Alignment(resultResidueNo);
 -------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------
 
+--NONE--
+
+-------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------
+----------------------------------------OBSOLETE TABLES------------------------------------------
+-------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------
+
+/* 
 CREATE TABLE PWSimilarity
 (	pwId				INT				SERIAL DEFAULT VALUE,
 	tentativeTPR1		INT				,
@@ -244,14 +299,8 @@ CREATE INDEX ixPdb2 ON PWSimilarity (pdb2);
 CREATE INDEX ixtentativeTPR1 ON PWSimilarity (tentativeTPR1);
 CREATE INDEX ixtentativeTPR2 ON PWSimilarity (ixtentativeTPR2);
 
--------------------------------------------------------------------------------------------------
--------------------------------------------------------------------------------------------------
-----------------------------------------OBSOLETE TABLES------------------------------------------
--------------------------------------------------------------------------------------------------
--------------------------------------------------------------------------------------------------
--------------------------------------------------------------------------------------------------
 
-/* CREATE TABLE TentativeTPR
+CREATE TABLE TentativeTPR
 (	tentativeTPRId		INT				SERIAL DEFAULT VALUE,
 	pdbCode				CHAR(4)			,
 	chain				VARCHAR(5)		,
