@@ -30,7 +30,7 @@ use warnings;
 
 use TPRTools;
 
-if (!(scalar @ARGV == 2)){
+if (!(scalar @ARGV == 3)){
     die "Usage: perl getSequences.pl pdb.csv\n";
 }
 
