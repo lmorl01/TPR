@@ -62,7 +62,7 @@ while (my $inLine = <INFILE>){
 				if (!(exists($knownResidues{$resChain}))){
 					$knownResidues{$resChain} = 1;
 					if (defined($res)){
-						print OUTFILE "INSERT INTO Sequence (pdbCode, chain, resNo, residue) VALUES (\"$pdb\",\'$chain\',$resNo,\'$res\');\n";
+						print OUTFILE "INSERT IGNORE INTO Sequence (pdbCode, chain, residueNo, residue) VALUES (\"$pdb\",\'$chain\',$resNo,\'$res\');\n";
 					} else {
 					print "Line ignored:\n $line PDB: $pdb, Chain: $chain, Residue No: $resNo, Residue: $res\n";
 					}
@@ -78,7 +78,7 @@ while (my $inLine = <INFILE>){
 				if (!(exists($knownResidues{$resChain}))){
 					$knownResidues{$resChain} = 1;
 					if (defined($res)){
-						print OUTFILE "INSERT INTO Sequence (pdbCode, chain, residueNo, residue) VALUES (\"$pdb\",\'$chain\',$resNo,\'$res\');\n";
+						print OUTFILE "INSERT IGNORE INTO Sequence (pdbCode, chain, residueNo, residue) VALUES (\"$pdb\",\'$chain\',$resNo,\'$res\');\n";
 					} else {
 					print "Line ignored:\n $line PDB: $pdb, Chain: $chain, Residue No: $resNo, Residue: $res\n";
 					}
