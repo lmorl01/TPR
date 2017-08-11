@@ -17,10 +17,11 @@
 # Error Behaviour:
 # 1. Print usage instructions if incorrect number of arguments
 #
-# Usage: perl getSequences.pl pdb.csv out.sql
+# Usage: perl getSequences.pl pdb.csv out.sql error.log
 #			
 # Arguments: 	pdb.csv is a raw list of pdb codes, each on a separate line
 #				out.sql is the SQL output file
+#				error.log is an error log file
 #
 #####################################################################################
 
@@ -35,6 +36,7 @@ if (!(scalar @ARGV == 2)){
 
 my $in = $ARGV[0];
 my $out = $ARGV[1];
+my $err = $ARGV[2];
 my $pdbDir = "/d/mw6/u/md003/workingPDB";
 
 open (INFILE, "<$in")
@@ -42,6 +44,9 @@ open (INFILE, "<$in")
 
 open(OUTFILE, ">$out")
 	 or die "Can't create output file $out\n";	
+	 
+open(ERR, ">$err")
+	 or die "Can't create output file $err\n";	
 	
 while (my $inLine = <INFILE>){
 	my %knownResidues;
@@ -80,7 +85,7 @@ while (my $inLine = <INFILE>){
 					if (defined($res)){
 						print OUTFILE "INSERT IGNORE INTO Sequence (pdbCode, chain, residueNo, residue) VALUES (\"$pdb\",\'$chain\',$resNo,\'$res\');\n";
 					} else {
-					print "Line ignored:\n $line PDB: $pdb, Chain: $chain, Residue No: $resNo, Residue: $res\n";
+					print ERR "Line ignored:\n $line PDB: $pdb, Chain: $chain, Residue No: $resNo, Residue: $res\n";
 					}
 					
 				}
