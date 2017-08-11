@@ -31,7 +31,7 @@ use warnings;
 use TPRTools;
 
 if (!(scalar @ARGV == 3)){
-    die "Usage: perl getSequences.pl pdb.csv\n";
+    die "Usage: perl getSequences.pl pdb.csv out.sql error.log\n";
 }
 
 my $in = $ARGV[0];
