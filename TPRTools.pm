@@ -26,7 +26,7 @@ use warnings;
 use Exporter;
 
 our @ISA = ("Exporter");
-our @EXPORT = ("determineChainFromPdbText", "determinePdbFromPdbText", 
+our @EXPORT = ("determineChainFromPdbText", "determinePdbFromPdbText", "getAminoAcidCode",
 	"getChainFromFatcatResultFile", "getPdbCodeFromFatcatResultFile", "getPDBPath",
 	"getStartEndResiduesFromFatcatResultFile", "getTTPRs", "truncatePDBFile", "extractAlignmentRegion", "trim");
 
@@ -34,6 +34,7 @@ our @EXPORT = ("determineChainFromPdbText", "determinePdbFromPdbText",
 sub determineChainFromPdbText($);
 sub determinePdbFromPdbText($);
 sub extractAlignmentRegion($);
+sub getAminoAcidCode($);
 sub getChainFromFatcatResultFile($);
 sub getPdbCodeFromFatcatResultFile($);
 sub getPDBPath($$);
@@ -41,6 +42,29 @@ sub getStartEndResiduesFromFatcatResultFile($);
 sub getTTPRs($);
 sub trim($);
 sub truncatePDBFile($$$$$);
+
+my %AA_MAP = 
+				(	"ALA" => "A",
+					"CYS" => "C",
+					"ASP" => "D",
+					"GLU" => "E",
+					"PHE" => "F",
+					"GLY" => "G",
+					"HIS" => "H",
+					"ILE" => "I",
+					"LYS" => "K",
+					"LEU" => "L",
+					"MET" => "M",
+					"ASN" => "N",
+					"PRO" => "P",
+					"GLN" => "Q",
+					"ARG" => "R",
+					"SER" => "S",
+					"THR" => "T",
+					"VAL" => "V",
+					"TRP" => "W",
+					"TYR" => "Y",
+				);
 
 sub determineChainFromPdbText($){
 
@@ -103,6 +127,10 @@ sub extractAlignmentRegion($){
 	my $pdbCode = getPdbCodeFromFatcatResultFile($_[0]);
 	my ($start, $end, $chainId) = getStartEndResiduesFromFatcatResultFile($_[0]);
 	return $pdbCode.":(".$chainId.":".$start."-".$end.")";
+}
+
+sub getAminoAcidCode($){
+	return $AA_MAP{$_[0]};
 }
 
 sub getChainFromFatcatResultFile($){
