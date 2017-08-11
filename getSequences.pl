@@ -69,7 +69,7 @@ while (my $inLine = <INFILE>){
 					if (defined($res)){
 						print OUTFILE "INSERT IGNORE INTO Sequence (pdbCode, chain, residueNo, residue) VALUES (\"$pdb\",\'$chain\',$resNo,\'$res\');\n";
 					} else {
-					print "Line ignored:\n $line\n";
+					print "Line ignored in pdb file $pdb:\n $line";
 					}
 					
 				}				
@@ -85,7 +85,7 @@ while (my $inLine = <INFILE>){
 					if (defined($res)){
 						print OUTFILE "INSERT IGNORE INTO Sequence (pdbCode, chain, residueNo, residue) VALUES (\"$pdb\",\'$chain\',$resNo,\'$res\');\n";
 					} else {
-					print ERR "Line ignored:\n $line\n";
+					print ERR "Line ignored in pdb file $pdb:\n $line";
 					}
 					
 				}
