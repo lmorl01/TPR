@@ -63,13 +63,12 @@ while (my $inLine = <INFILE>){
 				my $res = getAminoAcidCode($res3);
 				my $resNo = trim(substr($line, 18, 4));
 				my $chain = substr($line, 16, 1);
-				my $resChain = $chain.$resNo;
 				if (!(exists($knownResidues{$resChain}))){
 					$knownResidues{$resChain} = 1;
 					if (defined($res)){
 						print OUTFILE "INSERT IGNORE INTO Sequence (pdbCode, chain, residueNo, residue) VALUES (\"$pdb\",\'$chain\',$resNo,\'$res\');\n";
 					} else {
-					print "Line ignored:\n $line PDB: $pdb, Chain: $chain, Residue No: $resNo, Residue: $res\n";
+					print "Line ignored:\n $line\n";
 					}
 					
 				}				
@@ -85,7 +84,7 @@ while (my $inLine = <INFILE>){
 					if (defined($res)){
 						print OUTFILE "INSERT IGNORE INTO Sequence (pdbCode, chain, residueNo, residue) VALUES (\"$pdb\",\'$chain\',$resNo,\'$res\');\n";
 					} else {
-					print ERR "Line ignored:\n $line PDB: $pdb, Chain: $chain, Residue No: $resNo, Residue: $res\n";
+					print ERR "Line ignored:\n $line\n";
 					}
 					
 				}
