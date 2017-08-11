@@ -63,6 +63,7 @@ while (my $inLine = <INFILE>){
 				my $res = getAminoAcidCode($res3);
 				my $resNo = trim(substr($line, 18, 4));
 				my $chain = substr($line, 16, 1);
+				my $resChain = $chain.$resNo;
 				if (!(exists($knownResidues{$resChain}))){
 					$knownResidues{$resChain} = 1;
 					if (defined($res)){
