@@ -277,6 +277,46 @@ WHERE pdbCode
 NOT IN (SELECT DISTINCT pdbCode FROM Sequence)
 INTO OUTFILE '/d/user6/md003/Project/db/sqlout/ttprPDBs.csv' lines terminated by '\n';
 
+-- Extract the motif alignment for a given Core TPR
+
+SELECT TPRR.pdbCode, TPR.tprOrdinal, M.residueNo, M.motifNo, S.residue 
+FROM
+TPRRegion TPRR, TPR, TPRMotifAlignment M, Sequence S 
+WHERE 
+M.tprId = TPR.tprId and TPR.regionId = TPRR.regionId and TPRR.pdbCode = S.pdbCode and M.residueNo = S.residueNo;
+
+-- Extract the residues from Core TPRs aligned against a particular motif residue
+
+SELECT TPRR.pdbCode, TPR.tprOrdinal, M.residueNo, M.motifNo, S.residue 
+FROM 
+TPRRegion TPRR, TPR, TPRMotifAlignment M, Sequence S 
+WHERE 
+M.tprId = TPR.tprId and TPR.regionId = TPRR.regionId and TPRR.pdbCode = S.pdbCode and M.residueNo = S.residueNo 
+AND 
+M.motifNo = 20;
+
+-- Extract relative frequencies among the Core Set for a given motif residue
+
+SELECT S.residue, count(*) 
+FROM 
+TPRRegion TPRR, TPR, TPRMotifAlignment M, Sequence S 
+WHERE 
+M.tprId = TPR.tprId and TPR.regionId = TPRR.regionId and TPRR.pdbCode = S.pdbCode and M.residueNo = S.residueNo 
+AND 
+M.motifNo = 20 
+GROUP BY S.residue;
+
+-- In development
+
+SELECT 
+M.motifNo, E.queryPdb, R.resultPdb, S.residueNo, S.residue 
+FROM
+TPRMotifAlignment M, TPR, TPRRegion TPRR, Alignment A
+WHERE
+M.tprId = TPR.tprId and TPR.regionId = TPRR.regionId and TPRR.regionId = E.regionId and E.experimentId = R.experimentId 
+and R.resultPdb = S.pdbCode and M.residueNo = A.queryResidueNo
+AND
+R.resultPdb = '1a17';
 
 
 
