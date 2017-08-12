@@ -1,11 +1,15 @@
 -- In development: Data needed to determine consensus TTPR Motif Alignment:
 
 SELECT 
-TTPR.ttprId, TTPR.pdbCode, TTPR.chain, TTPR.regionOrdinal, TTPR.tprOrdinal, TTPR.startMode, TTPR.endMode, A.resultResidueNo, E.queryPdb
+TTPR.ttprId, TTPR.pdbCode, TTPR.chain, TTPR.regionOrdinal, TTPR.tprOrdinal, TTPR.startMode, TTPR.endMode, 
+A.resultResidueNo, 
+E.queryPdb,
+TPRR.regionOrdinal
 FROM 
-TentativeTPR TTPR, Results R, Alignment A, Experiment E
+TentativeTPR TTPR, Results R, Alignment A, TPRRegion TPRR
 WHERE
-TTPR.pdbCode = R.resultPdb AND TTPR.chain = R.chain AND R.resultId = A.resultId AND R.experimentId = E.experimentId
+TTPR.pdbCode = R.resultPdb and TTPR.chain = R.chain and D R.resultId = A.resultId and R.experimentId = E.experimentId and
+E.regionId = TPRR.regionId
 AND
 A.resultResidueNo >= TTPR.startMode and A.resultResidueNo <= TTPR.endMode
 AND
