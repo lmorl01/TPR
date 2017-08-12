@@ -6,7 +6,7 @@ A.resultResidueNo,
 E.queryPdb,
 TPRR.regionOrdinal
 FROM 
-TentativeTPR TTPR, Results R, Alignment A, TPRRegion TPRR
+TentativeTPR TTPR, Results R, Alignment A, Experiment E, TPRRegion TPRR
 WHERE
 TTPR.pdbCode = R.resultPdb and TTPR.chain = R.chain and R.resultId = A.resultId and R.experimentId = E.experimentId and
 E.regionId = TPRR.regionId
