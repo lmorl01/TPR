@@ -4,6 +4,10 @@
 # Author: David Morley
 # Script Name: ttprMotifAlignment.pl
 # Version: 	0001	(12/08/17)
+#			0002	(13/08/17) Inverted the way that motifNo and residueNo are stored
+#					so that we iterate over each motifNo and determine the modal residueNo
+#					instead of iterating over each residueNo and determining the modal
+#					motifNo (which was leading to duplicates)
 #
 # Purpose: 	Read an extracted alignment of Tentative TPRs against the TPR motif from all search results
 #			From this data, determine a consensus alignment of Tentative TPRs against the TPR motif
@@ -67,10 +71,13 @@ while (my $line = <INFILE>){
 		= @values;
 	if (!defined($ttprs{$ttprId})){
 		$ttprs{$ttprId} = [];
-		push @{$ttprs{$ttprId}}, [(0)x35] for (0..$ttprEnd);	# Initialize zero array, 35 x $ttprEnd
+		#push @{$ttprs{$ttprId}}, [(0)x35] for (0..$ttprEnd);	# Initialize zero array, 35 x $ttprEnd
+		push @{$ttprs{$ttprId}}, [(0)x$ttprEnd] for (0..35);	# Initialize zero array, 35 x $ttprEnd
 	}
-	$ttprs{$ttprId}[$residueNo][0] = 1;							# Flag shows there's some content here
-	$ttprs{$ttprId}[$residueNo][$motifNo]++;
+	#$ttprs{$ttprId}[$residueNo][0] = 1;							# Flag shows there's some content here
+	$ttprs{$ttprId}[$motifNo][0] = 1;							# Flag shows there's some content here
+	#$ttprs{$ttprId}[$residueNo][$motifNo]++;
+	$ttprs{$ttprId}[$motifNo][$residueNo]++;
 	$count++;
 }
 
@@ -78,15 +85,15 @@ foreach my $ttprId (sort keys %ttprs){
 	#print "Processing TTPR $ttprId\n";
 	for (my $i = 0; $i < scalar @{$ttprs{$ttprId}}; $i ++){
 		if ($ttprs{$ttprId}[$i][0] == 1){
-			my ($modalMotifIndex, $maxFreq) = (0,0);
+			my ($modalResidue, $maxFreq) = (0,0);
 			# We ignore the first number
 			for (my $j = 1; $j < scalar @{$ttprs{$ttprId}[$i]}; $j++){
 			if ($ttprs{$ttprId}[$i][$j] > $maxFreq){
 				$maxFreq = $ttprs{$ttprId}[$i][$j];
-				$modalMotifIndex = $j;
+				$modalResidue = $j;
 				}
 			}			
-			print OUTFILE "INSERT INTO TTPRMotifAlignment (ttprId, motifNo, residueNo) VALUES ($ttprId,$modalMotifIndex,$i);\n";
+			print OUTFILE "INSERT INTO TTPRMotifAlignment (ttprId, motifNo, residueNo) VALUES ($ttprId,$i,$modalResidue);\n";
 		}
 	}
 }
