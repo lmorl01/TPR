@@ -31,7 +31,9 @@ M2.ttprId = TTPR2.ttprId and M2.residueNo = C.residue2
 
 AND
 -- TTPR.pdbCode = '1a17' and 
+(M1.motifNo = 24 OR M2.motifNo = 24) and
 TTPR.ttprParamId = 2
 -- GROUP BY TTPR.tprOrdinal
 ORDER BY TTPR.pdbCode, TTPR.tprOrdinal
-INTO OUTFILE '/d/user6/md003/Project/db/sqlout/contacts.csv' fields terminated by ',' lines terminated by '\n';
+LIMIT 30
+-- INTO OUTFILE '/d/user6/md003/Project/db/sqlout/contacts.csv' fields terminated by ',' lines terminated by '\n';
